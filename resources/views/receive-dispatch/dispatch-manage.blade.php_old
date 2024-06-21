@@ -1,0 +1,137 @@
+<x-app-layout>
+    <x-slot name="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{route('app.dashboard')}}">DASHBOARD</a></li>
+            <li class="breadcrumb-item">RECEIVE & DISPATCH</li>
+            <li class="breadcrumb-item active">DISPATCH</li>
+        </ul>
+    </x-slot>
+    <x-slot name="css">
+        <link href="{{asset('assets/plugins/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css')}}" rel="stylesheet">
+    </x-slot>
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <!-- Validation -->
+    <x-errors class="mb-4" />
+    <x-success class="mb-4" />
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <h3 class="card-title">Dispatch</h3>
+            <a href="{{url()->previous()}}" class="btn btn-primary btn-sm p-2">Back</a>
+        </div>
+        <div class="card-body">
+            
+            <form action="{{route('app.dispatch.store')}}" method="POST" enctype="multipart/form-data" id="manageForm">
+                @csrf
+                <div class="row m-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input type="hidden" name="edit_id" id="edit_id" value="{{!empty($data)?$data->id:''}}">
+                            <label for="dispatch_from" class="form-label">Dispatch From<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dispatch_from" name="dispatch_from" placeholder="Please Enter Dispatch From" value="{{!empty($data)?$data->dispatch_from:old('dispatch_from')}}">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="dispatch_to" class="form-label">Dispatch To<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dispatch_to" name="dispatch_to" placeholder="Please Enter Dispatch To" value="{{!empty($data)?$data->dispatch_to:old('dispatch_to')}}">
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="dates" class="form-label">Date<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control datepicker" id="dates" name="dates" placeholder="Please Enter Date" value="{{!empty($data)?$data->dates:old('dates')}}">
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Please Enter Subjec" value="{{!empty($data)?$data->subject:old('subject')}}">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="letter_no" class="form-label">Letter No<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="letter_no" name="letter_no" placeholder="Please Enter Letter No" value="{{!empty($data)?$data->letter_no:old('letter_no')}}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="dispatch_reg_no" class="form-label">Dispatch Reg No<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dispatch_reg_no" name="dispatch_reg_no" placeholder="Please Enter Dispatch Reg No" value="{{!empty($data)?$data->dispatch_reg_no:old('dispatch_reg_no')}}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-3">    
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="types" class="form-label">Type</label>
+                            <div class="input-group">
+                                <select class="form-control selct2" name="types" id="types" class="form-control">
+                                    <option value="">Select</option>
+                                    <option {{!empty($data)&&$data->types=='Bill'?'selected':''}} value="Bill">Bill</option>
+                                    <option {{!empty($data)&&$data->types=='Leave'?'selected':''}} value="Leave">Leave</option>
+                                    <option {{!empty($data)&&$data->types=='Confidential Doc'?'selected':''}} value="Confidential Doc">Confidential Doc</option>
+                                    <option {{!empty($data)&&$data->types=='Other'?'selected':''}} value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row m-3 text-center">
+                    <div class="col-md-12 ">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <x-slot name="js">
+        <script src="https://cdn.ckeditor.com/4.17.1/standard/ckeditor.js"></script>
+        <script src="{{asset('assets/plugins/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js')}}"></script>
+        <script>
+            $('.datepicker').datepicker({
+                autoclose: true,
+                format: 'dd-mm-yyyy',
+                calendarWeeks: false,
+                zIndexOffset: 9999,
+                orientation: "bottom"
+            });
+            
+            $('#manageForm').submit(function(e) {
+                e.preventDefault();
+                $('#manageForm').find('.invalid-feedback').hide();
+                $('#manageForm').find('.is-invalid').removeClass('is-invalid');
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
+                    dataType: 'json',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            success(response.message);
+                            window.location.href="{{route('app.dispatch')}}";
+                        } else {
+                            $.each(response.error, function(fieldName, field) {
+                                $('#manageForm').find('[name=' + fieldName + ']').addClass('is-invalid');
+                                $('#manageForm').find('[name=' + fieldName + ']').after('<div class="invalid-feedback">' + field + '</div>');
+                            })
+                        }
+
+                    }
+                })
+            })
+        </script>
+    </x-slot>
+</x-app-layout>

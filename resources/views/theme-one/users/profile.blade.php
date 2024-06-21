@@ -1,0 +1,92 @@
+@extends('theme-one.layouts.app',['title' => 'Profile','sub_title'=>'Update'])
+@section('css')
+
+@endsection
+
+@section('content')
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <h3 class="card-title">Profile</h3>
+        <a href="{{url()->previous()}}" class="btn btn-primary btn-sm p-2">Back</a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                @if(session()->has('success'))
+                <div class="alert alert-success">
+                    {{ session()->get('success') }}
+                </div>
+                @endif
+            </div>
+        </div>
+        <form method="POST" action="{{route('user.profile.update')}}" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="row">
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Emp ID</label>
+                        <input type="text" name="emp_id" class="form-control" value="{{$user->emp_id}}" />
+                        @error('emp_id')
+                        <span class="text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Salutation</label>
+                        <input type="text" name="salutation" class="form-control" value="{{$user->salutation}}" />
+                        @error('salutation')
+                        <span class="text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" value="{{$user->name}}" />
+                        @error('name')
+                        <span class="text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="text" name="email" class="form-control" value="{{$user->email}}" />
+                        @error('email')
+                        <span class="text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" class="form-control" value="{{$user->phone}}" />
+                        @error('phone')
+                        <span class="text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-6 p-2">
+                    <div class="form-group">
+                        <label>Image</label>
+                        <input type="file" name="profile" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-12 text-center">
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+@endsection
+
+@section('js')
+
+@endsection

@@ -19,7 +19,7 @@ use App\Http\Controllers\FlyingLogController;
 use App\Http\Controllers\ExternalFlyingLogController;
 use App\Http\Controllers\NoneFlyingLogController;
 use App\Http\Controllers\FDTLController;
-use App\Http\Controllers\SFAController; 
+use App\Http\Controllers\SFAController;
 use App\Http\Controllers\LTMController;
 use App\Http\Controllers\ReceiveDispatchController;
 use App\Http\Controllers\ReportController;
@@ -53,12 +53,12 @@ Route::get('/clear-cache', function () {
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
- 
+
 Auth::routes();
 
 Route::group(['prefix' => 'admin','middleware' => ['auth','timezone']], function () {
     Route::get('/home', [HomeController::class, 'index'])->name('admin.home');
-}); 
+});
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::post('cities', [HomeController::class,'get_city'])->name('home.get_city');
@@ -73,14 +73,14 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
     Route::get('/profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('admin.profile.destroy');
-    
+
     Route::get('/dashboard', [HomeController::class, 'index'])->name('app.dashboard');
     Route::post('/assign-license', [HomeController::class, 'getLicense'])->name('app.assignlicense');
     Route::post('/assign-post-flight-doc', [HomeController::class, 'getPostFlightDoc'])->name('app.assignPostFlightDoc');
-   
+
     Route::post('/post-flight-doc', [HomeController::class, 'postFlightDoc'])->name('app.postFlightDoc');
     Route::post('/license', [HomeController::class, 'license'])->name('app.license');
-    
+
     Route::post('/assign-leave', [HomeController::class, 'getLeave'])->name('app.assignleave');
     Route::post('/leave', [HomeController::class, 'leave'])->name('app.leave');
 
@@ -99,14 +99,14 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('/get-job-function', [UserController::class, 'getJobFunction'])->name('app.users.getJobFunction');
         Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
         Route::get('/licenses/{id}', [UserController::class, 'licenses'])->name('app.users.licenses');
-    
+
         Route::put('/profile/update', [UserController::class, 'profileUpdate'])->name('user.profile.update');
 
         Route::get('/password', [UserController::class, 'password'])->name('user.password');
         Route::put('/password/update', [UserController::class, 'passwordUpdate'])->name('user.password.update');
-        
+
         Route::post('get-user-by-section', [UserController::class,'getUserBySection'])->name('user.getUserBySection');
-        
+
     });
 
     Route::group(['prefix' => 'pilot'], function () {
@@ -134,7 +134,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
 
         Route::get('/availability', [PilotController::class, 'availability'])->name('app.pilot.availability');
         Route::post('/availability/list', [PilotController::class, 'availabilityList'])->name('app.pilot.availability.list');
-        
+
         Route::group(['prefix' => 'documents'], function () {
             Route::get('{user_id}', [PilotController::class, 'documents'])->name('app.pilot.documents');
             Route::post('list', [PilotController::class, 'documentsList'])->name('app.pilot.documents.list');
@@ -142,7 +142,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
             Route::get('edit/{id?}', [PilotController::class, 'documentsEdit'])->name('app.pilot.documents.edit');
             Route::get('delete/{id?}', [PilotController::class, 'documentsDelete'])->name('app.pilot.documents.delete');
         });
-        
+
         Route::get('/monitoring', [PilotController::class, 'monitoring'])->name('app.pilot.monitoring');
         Route::post('/monitoring/list', [PilotController::class, 'monitoringList'])->name('app.pilot.monitoring.list');
 
@@ -157,15 +157,15 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('/medical/store', [PilotController::class, 'medicalStore'])->name('app.pilot.medical.store');
         Route::post('/medical/edit', [PilotController::class, 'medicalEdit'])->name('app.pilot.medical.edit');
         Route::post('/medical/update', [PilotController::class, 'medicalUpdate'])->name('app.pilot.medical.update');
-        
+
         Route::post('/qualification/store', [PilotController::class, 'qualificationStore'])->name('app.pilot.qualification.store');
         Route::post('/qualification/edit', [PilotController::class, 'qualificationEdit'])->name('app.pilot.qualification.edit');
         Route::post('/qualification/update', [PilotController::class, 'qualificationUpdate'])->name('app.pilot.qualification.update');
-        
+
         Route::post('/ground-training/store', [PilotController::class, 'groundTrainingStore'])->name('app.pilot.groundTrainingStore');
         Route::post('/ground-training/edit', [PilotController::class, 'groundTrainingEdit'])->name('app.pilot.groundTrainingEdit');
         Route::post('/ground-training/update', [PilotController::class, 'groundTrainingUpdate'])->name('app.pilot.groundTrainingUpdate');
-        
+
         Route::post('/certificat/delete', [PilotController::class, 'certificatDelete'])->name('app.pilot.certificat.delete');
         Route::post('/certificat/applicable', [PilotController::class, 'certificatApplicable'])->name('app.pilot.certificat.applicable');
 
@@ -185,21 +185,21 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('/contract-type/store', [SettingController::class, 'contractTypeStore'])->name('app.settings.contract.type.store');
         Route::get('/contract-type/edit/{id}', [SettingController::class, 'contractTypeEdit'])->name('app.settings.contract.type.edit');
         Route::get('/contract-type/destroy/{id}', [SettingController::class, 'contractTypeDestroy'])->name('app.settings.contract.type.destroy');
-        
+
         Route::get('/passenger', [SettingController::class, 'passengerIndex'])->name('app.settings.passenger');
         Route::post('/passenger/list', [SettingController::class, 'passengerList'])->name('app.settings.passenger.list');
         Route::post('/passenger/store', [SettingController::class, 'passengerStore'])->name('app.settings.passenger.store');
         Route::get('/passenger/edit/{id}', [SettingController::class, 'passengerEdit'])->name('app.settings.passenger.edit');
         Route::get('/passenger/destroy/{id}', [SettingController::class, 'passengerDestroy'])->name('app.settings.passenger.destroy');
-        
-        
-        
+
+
+
         Route::get('/sfarate', [SettingController::class, 'sfarate'])->name('app.settings.sfarate');
         Route::post('/sfarate/list', [SettingController::class, 'sfarateList'])->name('app.settings.sfarate.list');
         Route::post('/sfarate/store', [SettingController::class, 'sfarateStore'])->name('app.settings.sfarate.store');
         Route::get('/sfarate/edit/{id}', [SettingController::class, 'sfarateEdit'])->name('app.settings.sfarate.edit');
         Route::get('/sfarate/destroy/{id}', [SettingController::class, 'sfarateDestroy'])->name('app.settings.sfarate.destroy');
-        
+
         Route::get('/', [SettingController::class, 'index'])->name('app.settings');
         Route::put('/update', [SettingController::class, 'update'])->name('app.settings.update');
         Route::get('/roles', [RoleController::class, 'index'])->name('app.settings.roles');
@@ -210,19 +210,19 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('/subroles/{id}', [RoleController::class, 'subroles'])->name('app.settings.subroles');
         Route::get('/role/permissions/{id}', [RoleController::class, 'permissions'])->name('app.settings.permissions');
         Route::post('/role/permissions/store/{id}', [RoleController::class, 'permissionsStore'])->name('app.settings.permissions.store');
-        
+
         Route::get('/sectors', [SettingController::class, 'sectors'])->name('app.settings.sectors');
         Route::post('/sectors/list', [SettingController::class, 'sectorsList'])->name('app.settings.sectors.list');
         Route::post('/sectors/store', [SettingController::class, 'sectorsStore'])->name('app.settings.sectors.store');
         Route::get('/sectors/edit/{id}', [SettingController::class, 'sectorsEdit'])->name('app.settings.sectors.edit');
         Route::get('/sectors/destroy/{id}', [SettingController::class, 'sectorsDestroy'])->name('app.settings.sectors.destroy');
-        
+
         Route::get('/sections', [SectionController::class, 'index'])->name('app.settings.sections');
         Route::post('/sections/list', [SectionController::class, 'list'])->name('app.settings.sections.list');
         Route::post('/sections/store', [SectionController::class, 'store'])->name('app.settings.sections.store');
         Route::get('/sections/edit/{id}', [SectionController::class, 'edit'])->name('app.settings.sections.edit');
         Route::get('/sections/destroy/{id}', [SectionController::class, 'destroy'])->name('app.settings.sections.destroy');
-       
+
         Route::get('departments', [DepartmentController::class, 'index'])->name('app.settings.departments');
         Route::post('departments/list', [DepartmentController::class, 'list'])->name('app.settings.departments.list');
         Route::post('departments/store', [DepartmentController::class, 'store'])->name('app.settings.departments.store');
@@ -234,56 +234,56 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('designations/store', [DesignationController::class, 'store'])->name('app.settings.designations.store');
         Route::get('designations/edit/{id}', [DesignationController::class, 'edit'])->name('app.settings.designations.edit');
         Route::get('designations/destroy/{id}', [DesignationController::class, 'destroy'])->name('app.settings.designations.destroy');
-        
+
 
         Route::get('jobfunctions', [JobFunctionController::class, 'index'])->name('app.settings.jobfunctions');
         Route::post('jobfunctions/list', [JobFunctionController::class, 'list'])->name('app.settings.jobfunctions.list');
         Route::post('jobfunctions/store', [JobFunctionController::class, 'store'])->name('app.settings.jobfunctions.store');
         Route::get('jobfunctions/edit/{id}', [JobFunctionController::class, 'edit'])->name('app.settings.jobfunctions.edit');
         Route::get('jobfunctions/destroy/{id}', [JobFunctionController::class, 'destroy'])->name('app.settings.jobfunctions.destroy');
-        
+
         Route::get('certificates', [SettingController::class, 'certificate'])->name('app.settings.certificates');
         Route::post('certificates/list', [SettingController::class, 'certificateList'])->name('app.settings.certificates.list');
         Route::post('certificates/store', [SettingController::class, 'certificateStore'])->name('app.settings.certificates.store');
         Route::get('certificates/edit/{id}', [SettingController::class, 'certificateEdit'])->name('app.settings.certificates.edit');
         Route::get('certificates/destroy/{id}', [SettingController::class, 'certificateDestroy'])->name('app.settings.certificates.destroy');
-        
+
         Route::get('pilot-role', [SettingController::class, 'pilotroleIndex'])->name('app.settings.pilotrole');
         Route::post('pilot-role/list', [SettingController::class, 'pilotroleList'])->name('app.settings.pilotrole.list');
         Route::post('pilot-role/store', [SettingController::class, 'pilotroleStore'])->name('app.settings.pilotrole.store');
         Route::get('pilot-role/edit/{id}', [SettingController::class, 'pilotroleEdit'])->name('app.settings.pilotrole.edit');
         Route::get('pilot-role/destroy/{id}', [SettingController::class, 'pilotroleDestroy'])->name('app.settings.pilotrole.destroy');
-        
+
         Route::get('flying-type', [SettingController::class, 'flyingtypeIndex'])->name('app.settings.flyingtype');
         Route::post('flying-type/list', [SettingController::class, 'flyingtypeList'])->name('app.settings.flyingtype.list');
         Route::post('flying-type/store', [SettingController::class, 'flyingtypeStore'])->name('app.settings.flyingtype.store');
         Route::get('flying-type/edit/{id}', [SettingController::class, 'flyingtypeEdit'])->name('app.settings.flyingtype.edit');
         Route::get('flying-type/destroy/{id}', [SettingController::class, 'flyingtypeDestroy'])->name('app.settings.flyingtype.destroy');
-        
+
         Route::get('aircraft-type', [SettingController::class, 'aircraftTypeIndex'])->name('app.settings.aircraftType');
         Route::post('aircraft-type/list', [SettingController::class, 'aircraftTypeList'])->name('app.settings.aircraftType.list');
         Route::post('aircraft-type/store', [SettingController::class, 'aircraftTypeStore'])->name('app.settings.aircraftType.store');
         Route::get('aircraft-type/edit/{id}', [SettingController::class, 'aircraftTypeEdit'])->name('app.settings.aircraftType.edit');
         Route::get('aircraft-type/destroy/{id}', [SettingController::class, 'aircraftTypeDestroy'])->name('app.settings.aircraftType.destroy');
-        
+
         Route::get('expenses-type', [SettingController::class, 'expensesType'])->name('app.settings.expensesType');
         Route::post('expenses-type-list', [SettingController::class, 'expensesTypeList'])->name('app.settings.expensesTypeList');
         Route::post('expenses-type-store', [SettingController::class, 'expensesTypeStore'])->name('app.settings.expensesTypeStore');
         Route::get('expenses-type-edit/{id}', [SettingController::class, 'expensesTypeEdit'])->name('app.settings.expensesTypeEdit');
         Route::get('expenses-type-delete/{id}', [SettingController::class, 'expensesTypeDelete'])->name('app.settings.expensesTypeDelete');
-        
+
         Route::get('leave-type', [SettingController::class, 'leaveType'])->name('app.settings.leaveType');
         Route::post('leave-type-list', [SettingController::class, 'leaveTypeList'])->name('app.settings.leaveTypeList');
         Route::post('leave-type-store', [SettingController::class, 'leaveTypeStore'])->name('app.settings.leaveTypeStore');
         Route::get('leave-type-edit/{id}', [SettingController::class, 'leaveTypeEdit'])->name('app.settings.leaveTypeEdit');
         Route::get('leave-type-delete/{id}', [SettingController::class, 'leaveTypeDelete'])->name('app.settings.leaveTypeDelete');
-        
+
         Route::get('post-flight-doc', [SettingController::class, 'postFlightDoc'])->name('app.settings.postFlightDoc');
         Route::post('post-flight-doc-list', [SettingController::class, 'postFlightDocList'])->name('app.settings.postFlightDocList');
         Route::post('post-flight-doc-store', [SettingController::class, 'postFlightDocStore'])->name('app.settings.postFlightDocStore');
         Route::get('post-flight-doc-edit/{id}', [SettingController::class, 'postFlightDocEdit'])->name('app.settings.postFlightDocEdit');
         Route::get('post-flight-doc-delete/{id}', [SettingController::class, 'postFlightDocDelete'])->name('app.settings.postFlightDocDelete');
-        
+
         Route::get('expenditure', [SettingController::class, 'expenditure'])->name('app.settings.expenditure');
         Route::post('expenditure/list', [SettingController::class, 'expenditureList'])->name('app.settings.expenditureList');
         Route::post('expenditure/store', [SettingController::class, 'expenditureStore'])->name('app.settings.expenditureStore');
@@ -319,7 +319,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('/', [FlyingLogController::class, 'index'])->name('app.flying-details');
         Route::get('/lkohe-vilk-lko', [FlyingLogController::class, 'lkoheVilkLko'])->name('app.flying-details.lkoheVilkLko');
         Route::post('/lkohe-vilk-lko/list', [FlyingLogController::class, 'lkoheVilkLkoList'])->name('app.flying-details.lkoheVilkLko.list');
-        
+
         Route::post('/list', [FlyingLogController::class, 'list'])->name('app.flying-details.list');
         Route::get('/create', [FlyingLogController::class, 'create'])->name('app.flying-details.create');
         Route::post('/store', [FlyingLogController::class, 'store'])->name('app.flying-details.store');
@@ -327,16 +327,16 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::put('/update/{id}', [FlyingLogController::class, 'update'])->name('app.flying-details.update');
         Route::get('/destroy/{id}', [FlyingLogController::class, 'destroy'])->name('app.flying-details.destroy');
         Route::post('/last/location', [FlyingLogController::class, 'lastLocation'])->name('app.flying-details.last.location');
-        
+
         Route::get('/process', [FlyingLogController::class, 'processFlyingLog'])->name('app.flying-details.process');
         Route::post('/process/save', [FlyingLogController::class, 'processSave'])->name('app.flying-details.process.save');
         Route::post('/analyze-violation', [FlyingLogController::class, 'analyzeViolation'])->name('app.flying-details.analyze.violation');
-        
+
         Route::get('/statistics', [FlyingLogController::class, 'statistics'])->name('app.flying-details.statistics');
         Route::post('/statistics/list', [FlyingLogController::class, 'statisticsList'])->name('app.flying-details.statistics.list');
         Route::get('/statistics/print/{from_date?}/{to_date?}/{aircraft?}/{flying_type?}', [FlyingLogController::class, 'statisticsPrint'])->name('app.flying-details.statistics.print');
-        
-        
+
+
         Route::get('/receive-flight-doc', [FlyingLogController::class, 'receiveFlightDoc'])->name('app.flying-details.receiveFlightDoc');
         Route::get('/receive-flight-doc/add', [FlyingLogController::class, 'receiveFlightDocAdd'])->name('app.flying-details.receiveFlightDoc.add');
         Route::post('/receive-flight-doc/store', [FlyingLogController::class, 'receiveFlightDocStore'])->name('app.flying-details.receiveFlightDoc.store');
@@ -347,8 +347,14 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('/post-flight-doc/print/{from_date?}/{to_date?}/{passenger?}/{bunch_no?}', [FlyingLogController::class, 'postFlightDocPrint'])->name('app.flying-details.assignPostFlightDocPrint');
         Route::post('/receive-flight-doc/view-details', [FlyingLogController::class, 'openFlightDetailModel'])->name('app.openFlightDetailModel');
 
+        Route::get('/generate-aai-report/{id}', [FlyingLogController::class, 'generateAaiReport'])->name('app.flying.generateAaiReport');
+        Route::post('/aai-report-store', [FlyingLogController::class, 'aaiReportStore'])->name('app.flying.aaiReportStore');
+        Route::post('/aai-reports-list', [FlyingLogController::class, 'aaiReportsList'])->name('app.flying.aaiReportsList');
+        Route::get('/aai-report-edit/{id}', [FlyingLogController::class, 'aaiReportEdit'])->name('app.flying.aaiReportEdit');
+        // Route::post('/aai-report-update/{id}', [FlyingLogController::class, 'aaiReportUpdate'])->name('app.flying.aaiReportUpdate');
+        Route::get('/aai-report-destroy/{id}', [FlyingLogController::class, 'aaiReportDestroy'])->name('app.flying.aaiReportDestroy');
     });
-    
+
     Route::group(['prefix' => 'external-flying-details'], function () {
         Route::get('/', [ExternalFlyingLogController::class, 'index'])->name('app.external.flying-details');
         Route::post('/list', [ExternalFlyingLogController::class, 'list'])->name('app.external.flying-details.list');
@@ -358,7 +364,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::put('/update/{id}', [ExternalFlyingLogController::class, 'update'])->name('app.external.flying-details.update');
         Route::get('/destroy/{id}', [ExternalFlyingLogController::class, 'destroy'])->name('app.external.flying-details.destroy');
         Route::post('/last/location', [ExternalFlyingLogController::class, 'lastLocation'])->name('app.external.flying-details.last.location');
-        
+
         Route::get('/statistics', [ExternalFlyingLogController::class, 'statistics'])->name('app.external.flying-details.statistics');
         Route::post('/statistics/list', [ExternalFlyingLogController::class, 'statisticsList'])->name('app.external.flying-details.statistics.list');
         Route::get('/statistics/print/{from_date?}/{to_date?}/{aircraft?}/{flying_type?}', [ExternalFlyingLogController::class, 'statisticsPrint'])->name('app.external.flying-details.statistics.print');
@@ -377,7 +383,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
     Route::group(['prefix' => 'fdtl'], function () {
         Route::get('/', [FDTLController::class, 'index'])->name('app.fdtl');
         Route::post('/list', [FDTLController::class, 'list'])->name('app.fdtl.list');
-       
+
         Route::post('/report/get', [FDTLController::class, 'getReport'])->name('app.get.fdtl.report');
         Route::get('/monitoring', [FDTLController::class, 'monitoring'])->name('app.fdtl.monitoring');
         Route::get('/voilations', [FDTLController::class, 'voilations'])->name('app.fdtl.voilations');
@@ -387,12 +393,12 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
 
         Route::post('/voilation-details', [FDTLController::class, 'voilationDetails'])->name('app.fdtl.violation-details');
         Route::post('/update-exception', [FDTLController::class, 'updateException'])->name('app.fdtl.updateException');
-        
+
         Route::post('/voilation-update', [FDTLController::class, 'voilationUpdate'])->name('app.fdtl.violation-update');
         Route::post('/update-re-update', [FDTLController::class, 'voilationReUpdate'])->name('app.fdtl.update.re-update');
-        
-        
-        
+
+
+
         Route::get('/report/print/{id?}/{front_date?}/{to_date?}', [FDTLController::class, 'printReport'])->name('app.print.fdtl.report');
         Route::get('/report/{id}', [FDTLController::class, 'report'])->name('app.fdtl.report');
     });
@@ -411,15 +417,15 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('/monitoring/medical-list', [LTMController::class, 'monitoringMedicalList'])->name('app.ltm.monitoringMedicalList');
         Route::post('/monitoring/qualification-list', [LTMController::class, 'monitoringQualificationList'])->name('app.ltm.monitoringQualificationList');
         Route::post('/monitoring/ground-training-list', [LTMController::class, 'monitoringGroundTrainingList'])->name('app.ltm.monitoringGroundTrainingList');
-        
+
     });
-    
+
     Route::group(['prefix' => 'library'], function () {
         Route::get('/car', [FDTLController::class, 'index'])->name('app.library.car');
         Route::get('/fsdms', [FDTLController::class, 'fsdms'])->name('app.library.fsdms');
         Route::get('/generic', [FDTLController::class, 'generic'])->name('app.library.generic');
     });
-    
+
     Route::group(['prefix' => 'sfa'], function () {
 
         Route::get('/', [SfaController::class, 'index'])->name('app.sfa');
@@ -431,9 +437,9 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('/download/{id}', [SfaController::class, 'downloadSfaReport'])->name('app.sfa.download');
         Route::post('/user/list', [SfaController::class, 'getUserSfaList'])->name('app.user.sfa.list');
     });
-    
-   
-    
+
+
+
     Route::group(['prefix' => 'receipt-dispatch'], function () {
         Route::get('/receipt', [ReceiveDispatchController::class, 'receiveIndex'])->name('app.receive');
         Route::post('receipt/list', [ReceiveDispatchController::class, 'receiveList'])->name('app.receive.list');
@@ -441,26 +447,26 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::post('receipt/store', [ReceiveDispatchController::class, 'receiveStore'])->name('app.receive.store');
         Route::get('receipt/edit/{id}', [ReceiveDispatchController::class, 'receiveEdit'])->name('app.receive.edit');
         Route::get('receipt/destroy/{id}', [ReceiveDispatchController::class, 'receiveDestroy'])->name('app.receive.destroy');
-        
-        
+
+
         Route::get('/receipt/bill', [ReceiveDispatchController::class, 'receiveBillIndex'])->name('app.bill');
         Route::post('bill/list', [ReceiveDispatchController::class, 'receiptBillList'])->name('app.bill.list');
-        
+
         Route::get('/receipt/bill/{id}', [ReceiveDispatchController::class, 'receiveBill'])->name('app.receive.bill');
         Route::post('receipt/store/bill', [ReceiveDispatchController::class, 'receiveStoreBill'])->name('app.receive.store.bill');
         Route::post('receipt/bill/list', [ReceiveDispatchController::class, 'receiveBillList'])->name('app.receive.bill.list');
         Route::get('receipt/bill/edit/{id}', [ReceiveDispatchController::class, 'receiveBillEdit'])->name('app.receive.bill.edit');
         Route::get('receipt/bill/destroy/{id}', [ReceiveDispatchController::class, 'receiveBillDestroy'])->name('app.receive.bill.destroy');
-        
+
         Route::get('/receipt/bill/flying-verify-logs/{receipt_id}/{bill_id}', [ReceiveDispatchController::class, 'flyingVerifyLogs'])->name('app.receive.flyingVerifyLogs');
         Route::post('get-flying-verify-logs', [ReceiveDispatchController::class, 'getFlyingLogs'])->name('app.receive.getFlyingLogs');
         Route::post('flying-verify-logs-store', [ReceiveDispatchController::class, 'flyingLogsStore'])->name('app.receive.FlyingLogsStore');
-        
+
         Route::post('receipt/check-file', [ReceiveDispatchController::class, 'checkFile'])->name('app.receive.check.file');
         Route::post('receipt/unverify', [ReceiveDispatchController::class, 'receiptUnverify'])->name('app.receive.unverify');
-        
+
         Route::post('receipt/file-store', [ReceiveDispatchController::class, 'fileStore'])->name('app.receive.fileStore');
-        
+
         Route::get('/dispatch', [ReceiveDispatchController::class, 'dispatchIndex'])->name('app.dispatch');
         Route::post('dispatch/list', [ReceiveDispatchController::class, 'dispatchList'])->name('app.dispatch.list');
         Route::get('/dispatch/create', [ReceiveDispatchController::class, 'dispatchAdd'])->name('app.dispatch.add');
@@ -469,19 +475,19 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('dispatch/destroy/{id}', [ReceiveDispatchController::class, 'dispatchDestroy'])->name('app.dispatch.destroy');
         Route::post('get-assign-ticket-form', [ReceiveDispatchController::class, 'getStampTicketForm'])->name('app.dispatch.getStampTicketForm');
         Route::post('assign-tickets', [ReceiveDispatchController::class, 'assignTickets'])->name('app.dispatch.assignTickets');
-        
+
         Route::get('/dispatch/bill/{id}', [ReceiveDispatchController::class, 'dispatchBill'])->name('app.dispatch.bill');
-        
+
         Route::get('/receive/leave', [ReceiveDispatchController::class, 'leaveIndex'])->name('app.receive.leave');
         Route::post('/receiveleave/list', [ReceiveDispatchController::class, 'leaveList'])->name('app.receive.leave.list');
         Route::get('/receive/leave/create', [ReceiveDispatchController::class, 'leaveAdd'])->name('app.receive.leave.add');
         Route::post('/receive/leave/store', [ReceiveDispatchController::class, 'leaveStore'])->name('app.receive.leave.store');
         Route::get('/receive/leave/edit/{id}', [ReceiveDispatchController::class, 'leaveEdit'])->name('app.receive.leave.edit');
         Route::get('/receive/leave/destroy/{id}', [ReceiveDispatchController::class, 'leaveDestroy'])->name('app.receive.leave.destroy');
-        
+
         // Route::post('/preview', [ReceiveDispatchController::class, 'dispatchBill'])->name('app.sfa.preview');
     });
-    
+
     Route::group(['prefix' => 'reports'], function () {
         Route::get('pilot-ground-training', [ReportController::class, 'pilotGroundTraining'])->name('app.reports.pilotGroundTraining');
         Route::get('pilot-ground-training-print/{date?}/{aircraft?}', [ReportController::class, 'pilotGroundTrainingPrint'])->name('app.reports.pilotGroundTrainingPrint');
@@ -491,11 +497,13 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('flying-test-details-print/{date?}', [ReportController::class, 'FlyingTestDetailsPrint'])->name('app.reports.FlyingTestDetailsPrint');
         Route::get('training-and-checks-print/{date?}/{aircraft?}', [ReportController::class, 'trainingChecksPrint'])->name('app.reports.trainingChecksPrint');
         Route::get('aircraft-wise-summary-print/{from_date?}/{to_date?}', [ReportController::class, 'printAircraftWiseSummary'])->name('app.reports.printAircraftWiseSummary');
-        
+
         Route::get('vip-recency', [ReportController::class, 'vipRecency'])->name('app.reports.vipRecency');
         Route::get('vip-recency-print/{date?}/{aircraft_type?}', [ReportController::class, 'printVipRecency'])->name('app.reports.printVipRecency');
+
+        Route::get('aai-reports', [FlyingLogController::class, 'aaiReports'])->name('app.flying.aaiReports');
     });
-    
+
     Route::prefix('/states')->group(function () {
         Route::get('/', [StateController::class, 'index'])->name('app.states');
         Route::post('list', [StateController::class, 'list'])->name('app.states.list');
@@ -529,7 +537,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('edit/{id}', [CvrFdrController::class, 'edit_fdr'])->name('app.fdr.edit');
         Route::get('destroy/{id}', [CvrFdrController::class, 'destroy_fdr'])->name('app.fdr.destroy');
     });
-    
+
     Route::prefix('file')->group(function () {
         Route::get('/', [FilesController::class, 'index'])->name('app.file');
         Route::post('list', [FilesController::class, 'list'])->name('app.file.list');
@@ -549,7 +557,7 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
         Route::get('cancel/{id}', [LoadTrimController::class, 'cancelled'])->name('app.load.trim.cancelled');
 
     });
-    
+
     Route::prefix('my-leave')->group(function () {
         Route::get('/', [MyLeaveController::class, 'index'])->name('app.my.leave');
         Route::get('/apply', [MyLeaveController::class, 'apply'])->name('app.my.leave.apply');
@@ -597,7 +605,7 @@ Route::group(['prefix' => 'users','middleware' => ['auth','timezone']], function
     Route::get('/statistics', [FlyingLogController::class, 'statistics'])->name('user.flying.statistics');
     Route::post('/statistics/list', [FlyingLogController::class, 'statisticsList'])->name('user.flying.statistics.list');
     Route::get('/statistics/print/{from_date?}/{to_date?}/{aircraft?}/{flying_type?}', [FlyingLogController::class, 'statisticsPrint'])->name('user.flying.statistics.print');
-        
+
     Route::get('/sfa/generate', [SfaController::class, 'generate'])->name('user.sfa.generate');
     Route::post('/sfa/generate', [SfaController::class, 'generateSfa'])->name('user.sfa.generate');
     Route::get('/sfa/list', [SfaController::class, 'index'])->name('user.sfa.list');
@@ -634,7 +642,7 @@ Route::group(['prefix' => 'users','middleware' => ['auth','timezone']], function
         Route::post('/monitoring/ground-training-list', [CertificateController::class, 'monitoringGroundTrainingLogList'])->name('user.ltm.monitoringGroundTrainingList.log');
     });
     Route::post('/certificate/view', [CertificateController::class, 'viewData'])->name('user.ltm.view');
-    Route::get('/pilot/licence', [LTMController::class, 'index'])->name('user.pilot.licenses');    
+    Route::get('/pilot/licence', [LTMController::class, 'index'])->name('user.pilot.licenses');
 
     Route::get('/flying-currency', [ReportController::class, 'pilotFlyingCurrency'])->name('user.reports.pilotFlyingCurrency');
     Route::get('/flying-currency-print/{date?}/{aircraft?}/{report_type?}', [ReportController::class, 'pilotFlyingCurrencyPrint'])->name('user.reports.pilotFlyingCurrencyPrint');

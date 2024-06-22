@@ -536,7 +536,7 @@
                     </div>
                     <!-- Reports -->
                     <div
-                        class="menu-item has-sub {{ request()->routeIs(['app.reports.vipRecency','app.reports.pilotFlyingCurrency','app.reports.pilotGroundTraining','app.external.flying-details.statistics', 'app.pilot.flyingHourMonthly', 'app.sfa', 'app.fdtl', 'app.fdtl.voilations', 'app.flying-details.statistics']) ? 'active' : '' }}">
+                        class="menu-item has-sub {{ request()->routeIs(['app.reports.vipRecency','app.reports.pilotFlyingCurrency','app.reports.pilotGroundTraining','app.external.flying-details.statistics', 'app.pilot.flyingHourMonthly', 'app.sfa', 'app.fdtl', 'app.fdtl.voilations', 'app.flying-details.statistics', 'app.flying.aaiReports']) ? 'active' : '' }}">
                         <a href="#" class="menu-link">
                             <span class="menu-icon">
                                 <i class="fa fa-cog"></i>
@@ -609,6 +609,12 @@
                                 class="menu-item {{ request()->routeIs('app.fdtl.voilations.report') ? 'active' : ''}}">
                                 <a href="{{route('app.fdtl.voilations.report')}}" class="menu-link">
                                     <span class="menu-text">Violations Report</span>
+                                </a>
+                            </div>
+                            <div
+                                class="menu-item {{ request()->routeIs('app.flying.aaiReports') ? 'active' : ''}}">
+                                <a href="{{route('app.flying.aaiReports')}}" class="menu-link">
+                                    <span class="menu-text">AAI Reports</span>
                                 </a>
                             </div>
                         </div>

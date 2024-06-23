@@ -73,33 +73,41 @@
                                 <i data-feather="calendar"></i>Sortie</a>
                         </li>
                         <li class="nav-sub-item">
-                            <a href="{{route('user.flying.myshortie')}}" class="nav-sub-link">
+                            <a href="{{route('user.flying.myShortie')}}" class="nav-sub-link">
+                                <i data-feather="calendar"></i>My Sortie</a>
+                        </li>
+                        <li class="nav-sub-item">
+                            <a href="{{route('user.flying.index')}}" class="nav-sub-link">
+                                <i data-feather="message-square"></i>Flying</a>
+                        </li>
+                        <li class="nav-sub-item">
+                            <a href="{{route('user.flying.myFlying')}}" class="nav-sub-link">
                                 <i data-feather="message-square"></i>My Flying</a>
                         </li>
                         <li class="nav-sub-item">
-                            <a href="{{route('user.fdtl.report',Auth::user()->id)}}" class="nav-sub-link">
+                            <a href="{{route('user.fdtl.index')}}" class="nav-sub-link">
                                 <i data-feather="message-square"></i>FDTL</a>
+                        </li>
+                        <li class="nav-sub-item">
+                            <a href="{{ route('user.fdtl.myFdtlReport') }}" class="nav-sub-link">
+                                <i data-feather="message-square"></i>My FDTL</a>
                         </li>
                         <li class="nav-sub-item">
                             <a href="{{route('user.flying.statistics')}}" class="nav-sub-link">
                                 <i data-feather="message-square"></i>Statistic</a>
                         </li>
                         <li class="nav-sub-item">
+                            <a href="{{route('user.flying.statistics')}}" class="nav-sub-link">
+                                <i data-feather="message-square"></i>My Statistic</a>
+                        </li>
+                        <li class="nav-sub-item">
                             <a href="{{route('user.voilations')}}" class="nav-sub-link">
-                                <i data-feather="message-square"></i>Validation</a>
-                        </li>
-                        <!-- <li class="nav-sub-item">
-                            <a href="app-contacts.html" class="nav-sub-link">
-                                <i data-feather="users"></i>Contacts</a>
+                                <i data-feather="message-square"></i>Voilation</a>
                         </li>
                         <li class="nav-sub-item">
-                            <a href="app-file-manager.html" class="nav-sub-link">
-                                <i data-feather="file-text"></i>File Manager</a>
+                            <a href="{{route('user.voilations')}}" class="nav-sub-link">
+                                <i data-feather="message-square"></i>My Voilation</a>
                         </li>
-                        <li class="nav-sub-item">
-                            <a href="app-mail.html" class="nav-sub-link">
-                                <i data-feather="mail"></i>Mail</a>
-                        </li> -->
                     </ul>
                 </li>
                 <li class="nav-item with-sub">
@@ -337,7 +345,7 @@
                 button: "OK",
             });
         }
-        
+
         function error(message) {
             swal({
                 title: "Error",

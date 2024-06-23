@@ -589,78 +589,8 @@ Route::group(['prefix'=>'admin', 'middleware' => ['auth', 'verified','timezone']
     });
 });
 
+
+
 Route::group(['prefix' => 'users','middleware' => ['auth','timezone']], function () {
-    Route::get('/home', [HomeController::class, 'userIndex'])->name('user.home');
-    Route::get('/dashboard',[HomeController::class, 'userIndex'])->name('admin.dashboard');
-    Route::get('/profile',[UserController::class, 'profile'])->name('user.profile');
-    Route::get('/password', [UserController::class, 'password'])->name('user.password');
-    Route::get('/shortie', [FlyingLogController::class, 'index'])->name('user.flying.shortie');
-    Route::get('/my-shortie', [FlyingLogController::class, 'myShortie'])->name('user.flying.myshortie');
-    Route::post('/my-shortie', [FlyingLogController::class, 'myShortieList'])->name('user.flying.myshortie');
-    Route::get('/flying/verify/{id}',[FlyingLogController::class, 'verify'])->name('user.flying.verify');
-    Route::post('/report/get', [FDTLController::class, 'getReport'])->name('user.get.fdtl.report');
-    Route::get('/report/print/{id?}/{front_date?}/{to_date?}', [FDTLController::class, 'printReport'])->name('user.print.fdtl.report');
-    Route::get('/report/{id}', [FDTLController::class, 'report'])->name('user.fdtl.report');
-
-    Route::get('/statistics', [FlyingLogController::class, 'statistics'])->name('user.flying.statistics');
-    Route::post('/statistics/list', [FlyingLogController::class, 'statisticsList'])->name('user.flying.statistics.list');
-    Route::get('/statistics/print/{from_date?}/{to_date?}/{aircraft?}/{flying_type?}', [FlyingLogController::class, 'statisticsPrint'])->name('user.flying.statistics.print');
-
-    Route::get('/sfa/generate', [SfaController::class, 'generate'])->name('user.sfa.generate');
-    Route::post('/sfa/generate', [SfaController::class, 'generateSfa'])->name('user.sfa.generate');
-    Route::get('/sfa/list', [SfaController::class, 'index'])->name('user.sfa.list');
-    Route::post('/sfa/list', [SfaController::class, 'getUserSfaList'])->name('user.sfa.list');
-    Route::get('/sfa/view/{id}', [SfaController::class, 'sfaView'])->name('user.sfa.view');
-    Route::get('/sfa/delete/{id}', [SfaController::class, 'sfaDelete'])->name('user.sfa.deleted');
-    Route::get('/sfa/verify/{id}',[SfaController::class, 'verify'])->name('user.sfa.verify');
-    Route::get('/sfa/approved/{id}',[SfaController::class, 'approved'])->name('user.sfa.approved');
-    Route::get('/sfa/download/{id}', [SfaController::class, 'downloadSfaReport'])->name('user.sfa.download');
-
-    Route::get('/certificate/licence', [CertificateController::class, 'index'])->name('user.certificate.licence');
-    Route::get('/certificate/trainings', [CertificateController::class, 'trainings'])->name('user.certificate.trainings');
-    Route::get('/certificate/medicals', [CertificateController::class, 'medicals'])->name('user.certificate.medicals');
-    Route::get('/certificate/qualifications', [CertificateController::class, 'qualifications'])->name('user.certificate.qualifications');
-    Route::get('/certificate/ground-trainings', [CertificateController::class, 'groundTrainings'])->name('user.certificate.groundTrainings');
-
-    Route::post('/monitoring/license-list', [LTMController::class, 'monitoringLicenseList'])->name('user.ltm.monitoringLicenseList');
-    Route::post('/monitoring/training-list', [LTMController::class, 'monitoringTrainingList'])->name('user.ltm.monitoringTrainingList');
-    Route::post('/monitoring/medical-list', [LTMController::class, 'monitoringMedicalList'])->name('user.ltm.monitoringMedicalList');
-    Route::post('/monitoring/qualification-list', [LTMController::class, 'monitoringQualificationList'])->name('user.ltm.monitoringQualificationList');
-    Route::post('/monitoring/ground-training-list', [LTMController::class, 'monitoringGroundTrainingList'])->name('user.ltm.monitoringGroundTrainingList');
-    Route::group(['prefix' => 'log'], function () {
-
-        Route::get('/certificate/licence/{id}', [CertificateController::class, 'licenceLog'])->name('user.certificate.licence.log');
-        Route::get('/certificate/trainings/{id}', [CertificateController::class, 'trainingsLog'])->name('user.certificate.trainings.log');
-        Route::get('/certificate/medicals/{id}', [CertificateController::class, 'medicalsLog'])->name('user.certificate.medicals.log');
-        Route::get('/certificate/qualifications/{id}', [CertificateController::class, 'qualificationsLog'])->name('user.certificate.qualifications.log');
-        Route::get('/certificate/ground-trainings/{id}', [CertificateController::class, 'groundTrainingsLog'])->name('user.certificate.groundTrainings.log');
-
-        Route::post('/monitoring/license-list', [CertificateController::class, 'monitoringLicenseLogList'])->name('user.ltm.monitoringLicenseList.log');
-        Route::post('/monitoring/training-list', [CertificateController::class, 'monitoringTrainingLogList'])->name('user.ltm.monitoringTrainingList.log');
-        Route::post('/monitoring/medical-list', [CertificateController::class, 'monitoringMedicalLogList'])->name('user.ltm.monitoringMedicalList.log');
-        Route::post('/monitoring/qualification-list', [CertificateController::class, 'monitoringQualificationLogList'])->name('user.ltm.monitoringQualificationList.log');
-        Route::post('/monitoring/ground-training-list', [CertificateController::class, 'monitoringGroundTrainingLogList'])->name('user.ltm.monitoringGroundTrainingList.log');
-    });
-    Route::post('/certificate/view', [CertificateController::class, 'viewData'])->name('user.ltm.view');
-    Route::get('/pilot/licence', [LTMController::class, 'index'])->name('user.pilot.licenses');
-
-    Route::get('/flying-currency', [ReportController::class, 'pilotFlyingCurrency'])->name('user.reports.pilotFlyingCurrency');
-    Route::get('/flying-currency-print/{date?}/{aircraft?}/{report_type?}', [ReportController::class, 'pilotFlyingCurrencyPrint'])->name('user.reports.pilotFlyingCurrencyPrint');
-    Route::get('/flying-test-details-print/{date?}', [ReportController::class, 'FlyingTestDetailsPrint'])->name('user.reports.FlyingTestDetailsPrint');
-    Route::get('/training-and-checks-print/{date?}/{aircraft?}', [ReportController::class, 'trainingChecksPrint'])->name('user.reports.trainingChecksPrint');
-    Route::prefix('my-leave')->group(function () {
-        Route::get('/', [MyLeaveController::class, 'index'])->name('user.my.leave');
-        Route::get('/apply', [MyLeaveController::class, 'apply'])->name('user.my.leave.apply');
-        Route::post('list', [MyLeaveController::class, 'list'])->name('user.my.leave.list');
-        Route::post('store', [MyLeaveController::class, 'store'])->name('user.my.leave.store');
-        Route::get('edit/{id}', [MyLeaveController::class, 'edit'])->name('user.my.leave.edit');
-        Route::post('update/{id}', [MyLeaveController::class, 'update'])->name('user.my.leave.update');
-        Route::get('cancel/{id}', [MyLeaveController::class, 'cancelled'])->name('user.my.leave.cancelled');
-    });
-    Route::get('/contract', [ContractController::class, 'index'])->name('user.contract');
-    Route::post('/contract', [ContractController::class, 'list'])->name('user.contract');
-    Route::get('/voilations', [FDTLController::class, 'voilationsReport'])->name('user.voilations');
-    Route::post('/voilations/list', [FDTLController::class, 'voilationsReportList'])->name('user.voilations.report.list');
-
-
+    require __DIR__ . '/user.php';
 });

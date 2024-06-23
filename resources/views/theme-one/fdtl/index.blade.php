@@ -1,4 +1,4 @@
-@extends('theme-one.layouts.app',['title' => 'FDTL','sub_title'=>'REPORT'])
+@extends('theme-one.layouts.app',['title' => 'FDTL','sub_title'=> $sub_title])
 @section('css')
 
 @endsection
@@ -9,7 +9,7 @@
             <form action="{{route('user.fdtl.getReport')}}" method="post" id="reportForm">
                 @csrf
                 <div class="row">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label class="mt-4"><b>Select Report Duration</b></label>
                         </div>
@@ -17,11 +17,15 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>Poilot</label>
-                            <select name="user_id" id="user_id" class="form-control"></select>
-                                <option value="">Select</option>
-                                @foreach($users as $key=> $user)
-                                    <option value="{{$user->id}}">{{$user->salutation.' '.$user->name}}</option>
-                                @endforeach
+                            <select name="user_id" id="user_id" class="form-control" onchange="showSelectedText()">
+                                @if($users->count() == 1 && $users->first()->id == Auth::user()->id)
+                                    <option value="{{ $users->first()->id }}">{{ $users->first()->salutation . ' ' . $users->first()->name }}</option>
+                                @else
+                                    <option value="">Select</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->salutation . ' ' . $user->name }}</option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     </div>
@@ -37,8 +41,8 @@
                             <input type="date" name="to_date" id="to_date" class="form-control" value="{{request()->to_date}}">
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group m-3">
+                    <div class="col-md-1">
+                        <div class="form-group mt-3">
                             <button type="submit" class="btn btn-primary btn-sm btn-block m-2">Search</button>
                         </div>
                     </div>
@@ -48,10 +52,16 @@
     </div>
     <div class="card">
         <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">FDTL report : </h3>
+            <h3 class="card-title">FDTL report :
+                @if($users->count() == 1 && $users->first()->id == Auth::user()->id)
+                    <span>{{ $users->first()->salutation . ' ' . $users->first()->name }}</span>
+                @else
+                    <span id="ans"></span>
+                @endif
+            </h3>
             <div>
             <!-- <a href="{{url()->previous()}}" class="btn btn-primary btn-sm p-2">Back</a> -->
-            <a href="javascript:void(0);" onclick="printSectedDiv();" class="btn btn-info btn-sm p-2">Print</a>
+                <a href="javascript:void(0);" onclick="printSectedDiv();" class="btn btn-info btn-sm p-2">Print</a>
             </div>
         </div>
         <div class="card-body p-1 table-responsive" id="reportTable">
@@ -66,6 +76,12 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
         <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
         <script>
+            function showSelectedText() {
+                var selectElement = document.getElementById("user_id");
+                var selectedText = selectElement.options[selectElement.selectedIndex].text;
+                document.getElementById("ans").innerText = selectedText;
+            }
+
             $('#reportForm').submit(function(e){
                 e.preventDefault();
                 let form = $(this);
@@ -82,6 +98,7 @@
                             +'</div>');
                     },
                     success:function(data){
+                        console.log(data);
                         $('#reportTable').html(data);
                     },
                     error:function(err){

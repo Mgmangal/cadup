@@ -2,7 +2,7 @@
     <x-slot name="breadcrumb">
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{route('app.dashboard')}}">DASHBOARD</a></li>
-            <li class="breadcrumb-item active">PILOT </li>
+            <li class="breadcrumb-item active">PILOT LIST</li>
         </ul>
     </x-slot>
     <x-slot name="css">
@@ -36,7 +36,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                       
+
                     </tbody>
                 </table>
             </div>
@@ -45,7 +45,7 @@
 
 
 
-    
+
     <x-slot name="js">
         <script src="{{asset('assets/plugins/datatables.net/js/jquery.dataTables.min.js')}}"></script>
         <script src="{{asset('assets/plugins/datatables.net-bs5/js/dataTables.bootstrap5.min.js')}}"></script>
@@ -59,40 +59,40 @@
         <script src="{{asset('assets/plugins/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js')}}"></script>
         <script>
            function dataList()
-        {
-            $('#datatableDefault').DataTable().destroy();
-            $('#datatableDefault').DataTable({
-                processing: true,
-                serverSide: true,
-                dom: "<'row mb-3'<'col-sm-4'l><'col-sm-8 text-end'<'d-flex justify-content-end'fB>>>t<'d-flex align-items-center'<'me-auto'i><'mb-0'p>>",
-                lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
-                responsive: true,
-                columnDefs: [{ width: 200, targets: 3 }],
-                fixedColumns: true,
-                buttons: [{
-                        extend: 'print',
-                        className: 'btn btn-default btn-sm'
+            {
+                $('#datatableDefault').DataTable().destroy();
+                $('#datatableDefault').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    dom: "<'row mb-3'<'col-sm-4'l><'col-sm-8 text-end'<'d-flex justify-content-end'fB>>>t<'d-flex align-items-center'<'me-auto'i><'mb-0'p>>",
+                    lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
+                    responsive: true,
+                    columnDefs: [{ width: 200, targets: 3 }],
+                    fixedColumns: true,
+                    buttons: [{
+                            extend: 'print',
+                            className: 'btn btn-default btn-sm'
+                        },
+                        {
+                            extend: 'csv',
+                            className: 'btn btn-default btn-sm'
+                        }
+                    ],
+                    ajax: {
+                        url: "{{route('app.fdtl.list')}}",
+                        type: 'POST',
+                        data:{"_token": "{{ csrf_token() }}"},
                     },
-                    {
-                        extend: 'csv',
-                        className: 'btn btn-default btn-sm'
+                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {
+                            var oSettings = this.fnSettings ();
+                            $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
+                        },
+                    "initComplete": function(){
+
                     }
-                ],
-                ajax: {
-                    url: "{{route('app.fdtl.list')}}",
-                    type: 'POST',
-                    data:{"_token": "{{ csrf_token() }}"},
-                },
-                fnRowCallback: function( nRow, aData, iDisplayIndex ) { 
-                        var oSettings = this.fnSettings ();
-                        $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
-                    },
-                "initComplete": function(){
-                
-                }
-            }); 
-        }
-        dataList();
+                });
+            }
+            dataList();
         </script>
     </x-slot>
 </x-app-layout>

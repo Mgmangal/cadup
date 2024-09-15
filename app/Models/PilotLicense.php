@@ -55,6 +55,6 @@ class PilotLicense extends Model
     }
     public function getNextDueAttribute($value)
     {
-        return $value;//!empty($value)?date('d-m-Y', strtotime($value)):'';
+        return $value;
     }
 }

@@ -27,16 +27,17 @@
             <form action="{{route('app.settings.permissions.store', $role->id)}}" method="POST" id="manageForm">
                 @csrf
                 <div class="row">
-                    @foreach($permissions as $key=> $permission)
-                    <div class="col-md-2 p-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{$permission->id}}" id="permission{{$key}}" name="permissions[]" {{$role->hasPermissionTo($permission->name)?'checked':''}}/>
-                            <label class="form-check-label" for="permission{{$key}}">{{$permission->name}}</label>
+                    {{-- @php echo "<pre>" . print_r($permissions) . "</pre>"; die(); @endphp --}}
+                    @foreach($permissions as $key => $permission)
+                        <div class="col-md-2 p-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="{{$permission->id}}" id="permission{{$key}}" name="permissions[]" {{$role->hasPermissionTo($permission->name) ? 'checked' : ''}} />
+                                <label class="form-check-label" for="permission{{$key}}">{{ucwords(str_replace('-', ' ',$permission->name))}}</label>
+                            </div>
                         </div>
-                    </div>
                     @endforeach
-                    <div class="col-md-12 text-center">
-                        <button type="submit" class="btn btn-primary">Save</button>
+                    <div class="col-md-12 mt-4 text-center">
+                        <button type="submit" class="btn btn-success px-5">Save</button>
                     </div>
                 </div>
             </form>

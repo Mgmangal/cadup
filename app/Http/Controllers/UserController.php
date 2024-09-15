@@ -9,13 +9,14 @@ use Illuminate\Http\Request;
 use App\Models\City;
 use App\Models\User;
 use App\Models\State;
+use App\Models\UserCertificate;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public function __construct()
-    {   
+    {
         //$this->middleware(['permission:Employee Add|Employee Edit|Employee Delete|Employee View']);
     }
     public function index()
@@ -97,7 +98,7 @@ class UserController extends Controller
             'data' => $html
         ]);
     }
-    
+
     public function store(Request $request)
     {
         $validation = $request->validate([
@@ -167,16 +168,15 @@ class UserController extends Controller
         $data = array();
 		foreach ($result as $key => $value) {
             $action = '';
-            if(auth()->user()->can('Employee Edit'))
-            {
-                $action  .= '<a href="'.route('app.users.edit', $value->id).'" class="btn btn-warning btn-sm m-1">Edit</a>';
-                $action .= '<a href="'.route('app.users.roles', $value->id).'" class="btn btn-success btn-sm m-1">Assign Role</a>';
-                $action .= '<a href="'.route('app.users.licenses', $value->id).'" class="btn btn-success btn-sm m-1">Manage License</a>';
-                
-            }
-            // $action  = '<a href="'.route('app.users.edit', $value->id).'" class="btn btn-warning btn-sm m-1">Edit</a>';
             
-            if($value->id!=1&&auth()->user()->can('Employee Delete'))
+            $action  .= '<a href="'.route('app.users.edit', $value->id).'" class="btn btn-warning btn-sm m-1">Edit</a>';
+            $action .= '<a href="'.route('app.users.roles', $value->id).'" class="btn btn-success btn-sm m-1">Assign Role</a>';
+            $action .= '<a href="'.route('app.users.licenses', $value->id).'" class="btn btn-success btn-sm m-1">Manage License</a>';
+
+            
+            // $action  = '<a href="'.route('app.users.edit', $value->id).'" class="btn btn-warning btn-sm m-1">Edit</a>';
+
+            if($value->id!=1)
             {
                 $action .= '<a href="javascript:void(0);" onclick="deleted(`'.route('app.users.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
             }
@@ -287,7 +287,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
-    
+
     public function updateStatus(Request $request)
     {
         try {
@@ -314,7 +314,7 @@ class UserController extends Controller
             $user->is_delete='1';
             $user->status='inactive';
             $user->save();
-            return redirect()->route('app.users')->with('success','User deleted successfully');
+            return response()->json(['success' => true, 'message' => 'User Deleted successfully.']);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -332,9 +332,9 @@ class UserController extends Controller
     {
         try {
             $user = User::find($id);
-            
+
             $user->roles()->sync($request->roles);
-            return redirect()->route('users.index')->with('success','User role updated successfully');
+            return redirect()->route('app.users')->with('success','User role updated successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -351,12 +351,57 @@ class UserController extends Controller
         $license1=MasterAssign::whereIn('master_id',$d)->where('is_for','user')->pluck('certificate_id')->toArray();
         $license2=MasterAssign::whereIn('master_id',$a)->where('is_for','aircraft')->pluck('certificate_id')->toArray();
         $license=array_merge($license1,$license2);
-        $license=Master::whereIn('id',$license)->get();
-        return view('users.licenses',compact('user','license'));
+        
+        //$license=Master::whereIn('id',$license)->get();
+        
+        $licenses=Master::whereIn('id',$license)->where('sub_type','license')->where('status','active')->get();
+        $trainings=Master::whereIn('id',$license)->where('sub_type','training')->where('status','active')->get();
+        $qualifications=Master::whereIn('id',$license)->where('sub_type','qualification')->where('status','active')->get();
+        $medicals=Master::whereIn('id',$license)->where('sub_type','medical')->where('status','active')->get();
+        $ground_trainings=Master::whereIn('id',$license)->where('sub_type','ground_training')->where('status','active')->get();
+        return view('users.licenses',compact('user','license','licenses','trainings','qualifications','medicals','ground_trainings')); 
     }
 
+    public function licensesStore(Request $request,$id)
+    {
+        //echo $id;die;
+        try {
+            $master_id=$request->master_id;
+            $id_current_for_flying=$request->id_current_for_flying;
+            $is_mandatory=$request->is_mandatory;
+            $is_lifetime=$request->is_lifetime;
+            $certificate_type=$request->certificate_type;
+            UserCertificate::where('user_id',$id)->delete();
+            
+            $licenses=array();
+            foreach($master_id as $key => $value)
+            {
+                $data =new UserCertificate;
+                $data->user_id=$id;
+                $data->master_id=$value;
+                $data->id_current_for_flying=isset($id_current_for_flying[$key])?$id_current_for_flying[$key]:'no';
+                $data->is_mandatory=isset($is_mandatory[$key])?$is_mandatory[$key]:'no';
+                $data->is_lifetime=isset($is_lifetime[$key])?$is_lifetime[$key]:'no';
+                $data->certificate_type=isset($certificate_type[$key])?$certificate_type[$key]:'no';
+                $data->save();
+                //$licenses[]=array(
+                //                'master_id'=>$value,
+                //                'id_current_for_flying'=>$id_current_for_flying[$key]??'no',
+                //                'is_mandatory'=>$is_mandatory[$key]??'no',
+                //                'is_lifetime'=>$is_lifetime[$key]??'no',
+                //                'certificate_type'=>$certificate_type[$key]
+                //                );
+            }
+            //$user = User::find($id);
+            //$user->certificates()->sync($licenses);
+            return redirect()->route('app.users')->with('success','User licenses updated successfully');
+        } catch (\Exception $e) {
+
+        return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
     public function profile(Request $request)
-    {   
+    {
         $user = User::find(Auth::user()->id);
         if(getUserType()=='admin')
         {
@@ -424,7 +469,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
-    
+
     public function getUserBySection(Request $request)
     {
         $users = User::whereJsonContains('section', $request->id)->where('status','active')->where('is_delete','0')->get();
@@ -435,5 +480,5 @@ class UserController extends Controller
         }
         return response()->json($html);
     }
-    
+
 }

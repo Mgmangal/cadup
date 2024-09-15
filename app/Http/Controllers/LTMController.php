@@ -11,11 +11,12 @@ use App\Models\PilotMedical;
 use App\Models\PilotTraining;
 use App\Models\PilotQualification;
 use App\Models\PilotGroundTraining; 
+use App\Models\UserCertificate; 
 use App\Models\Leave;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\DB;
 
 class LTMController extends Controller
 {
@@ -27,7 +28,6 @@ class LTMController extends Controller
     {
         return view('ltm.index');
     }
-
 
     public function list(Request $request)
     {
@@ -61,10 +61,8 @@ class LTMController extends Controller
         $result =$users->get();
         $data = array();
 		foreach($result as $key => $value) {
-           
             $action  = '<a href="'.route('app.pilot.licenses', $value->id).'" class="btn btn-primary btn-sm m-1">View</a>';
             //$action .= '<a href="'.route('app.pilot.licenses', $value->id).'" class="btn btn-success btn-sm m-1">License Traning & Medical</a>';
-            
             $status='<select class="form-control" onchange="changeStatus('.$value->id.',this.value);">';
                 $status.='<option '.($value->status=='active'?'selected':'').' value="active">Active</option>';
                 $status.='<option '.($value->status=='inactive'?'selected':'').' value="inactive">Inactive</option>';
@@ -72,9 +70,9 @@ class LTMController extends Controller
             $sub_array = array();
 			$sub_array[] = ++$key;
             $sub_array[] = $value->salutation.' '.$value->name;
-            $sub_array[] = checkCrewLicenses($value->id,getCetificateIds($value->id,'license'));
-            $sub_array[] = checkCrewTrainings($value->id,getCetificateIds($value->id,'training'));
-            $sub_array[] = checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'license');//checkCrewLicenses($value->id,getCetificateIds($value->id,'license'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'training');//checkCrewTrainings($value->id,getCetificateIds($value->id,'training'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'medical');//checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'));
             $sub_array[] = $action;
             $data[] = $sub_array;
         }
@@ -87,7 +85,6 @@ class LTMController extends Controller
 		echo json_encode($output);
     }
     
-   
     public function monitoring()
     {
         return view('ltm.monitoring');
@@ -95,15 +92,31 @@ class LTMController extends Controller
     
     public function monitoringLicenseList(Request $request)
     {
-        $column=['id','id','users.salutation','users.name','license.name','renewed_on','extended_date','next_due','status','created_at','id','id'];
-        $users=PilotLicense::with(['user'=>function($q) {
-            $q->where('status','active');
-        }])->where('is_applicable','yes')->groupBy('license_id')->groupBy('user_id');
-        $users->orderBy('id', 'desc');
-        
+        $column=['pilot_licenses.id','pilot_licenses.id','users.salutation','users.name','masters.name','pilot_licenses.renewed_on','pilot_licenses.extended_date','pilot_licenses.next_due','pilot_licenses.status','pilot_licenses.created_at','pilot_licenses.id','pilot_licenses.id'];
+      
+        $users = DB::table('user_certificates')
+            ->leftjoin('pilot_licenses', 'user_certificates.master_id', '=', 'pilot_licenses.license_id')
+            ->leftjoin('masters', 'pilot_licenses.license_id', '=', 'masters.id')
+            ->leftjoin('users', 'user_certificates.user_id', '=', 'users.id')
+            ->select(
+                'masters.id as master_id', 
+                'masters.name as name',
+                'users.salutation', 
+                'users.id as user_id', 
+                'users.name as user_name', 
+                'pilot_licenses.id',
+                'pilot_licenses.extended_date',
+                'pilot_licenses.next_due',
+                'pilot_licenses.status',
+                'pilot_licenses.created_at',
+                'pilot_licenses.renewed_on'
+            )
+            ->where('user_certificates.certificate_type', 'license');
+            $users->groupBy('pilot_licenses.license_id');
+            
         if(!empty($_POST['user_id']))
         {
-            $users->where('user_id',$_POST['user_id']);
+            $users->where('user_certificates.user_id',$_POST['user_id']);
         }
 
         $dates=date('Y-m-d');
@@ -111,8 +124,8 @@ class LTMController extends Controller
         {
             $dates=$_POST['dates'];
         }
-        
-        $total_row=$users->count();
+            
+        $total_row=$users->get()->count();
         if (!empty($_POST['search']['value'])) {
             $search = $_POST['search']['value'];
             $users->where(function ($q) use($search){
@@ -121,12 +134,14 @@ class LTMController extends Controller
                 // $q->orWhere('license.name', 'LIKE', '%' . $search . '%');
             });
 		}
+		
 		if (isset($_POST['order'])) {
             $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else {
-            $users->orderBy('id', 'desc');
+            $users->orderBy('pilot_licenses.id', 'desc');
         }
-		$filter_row =$users->count();
+        
+		$filter_row =$users->get()->count();
         if (isset($_POST["length"]) && $_POST["length"] != -1) {
             $users->skip($_POST["start"])->take($_POST["length"]);
 		}
@@ -134,23 +149,21 @@ class LTMController extends Controller
         $data = array();
 		foreach($result as $key => $value) {
            
-            if(getUserType()=='user')
-            {
-                $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'license\')" class="btn btn-primary btn-sm m-1">View</a>';
-                $action  .= '<a href="'.route('user.certificate.licence.log', $value->license->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
-            }else{
-            $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
-            }
+            $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'license\')" class="btn btn-primary btn-sm m-1">View</a>';
+            //$action  .= '<a href="'.route('user.certificate.licence.log', $value->license->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
+            
+            $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
+            
             $status='Active';
             $sub_array = array();
 			$sub_array[] = ++$key;
-            $sub_array[] = $value->user->salutation.' '.$value->user->name;
-            $sub_array[] = $value->license->name;
+            $sub_array[] = $value->salutation.' '.$value->user_name;
+            $sub_array[] = $value->name;
             $sub_array[] = '<b>' . $value->renewed_on . '</b>';
             $sub_array[] = $value->extended_date;
             $sub_array[] = $value->next_due;
             $next_due='';
-            if(strtotime($value->next_due) > strtotime($dates))
+            if(!empty($value->next_due)&& strtotime($value->next_due) > strtotime($dates))
             {
                 $day=\Carbon\Carbon::parse( $dates )->diffInDays($value->next_due );  
                 $bt='style="background-color: #1e24dd;color: white;"';
@@ -183,15 +196,33 @@ class LTMController extends Controller
     
     public function monitoringTrainingList(Request $request)
     {
-        $column=['id','id','users.salutation','users.name','training.name','renewed_on','extended_date','next_due','status','created_at','id','id'];
-        $users=PilotTraining::with(['user'=>function($q) {
-            $q->where('status','active');
-        }])->where('is_applicable','yes')->groupBy('training_id')->groupBy('user_id');
-        $users->orderBy('id', 'desc');
+        $column=['user_certificates.id','user_certificates.id','users.salutation','masters.name','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id'];
+        
+        $users = DB::table('user_certificates')
+            //->leftjoin('pilot_trainings', 'user_certificates.master_id', '=', 'pilot_trainings.training_id')
+            ->leftjoin('masters', 'user_certificates.master_id', '=', 'masters.id')
+            ->leftjoin('users', 'user_certificates.user_id', '=', 'users.id')
+            ->select(
+                'masters.id as master_id', 
+                'masters.name as name',
+                'users.salutation', 
+                'users.id as user_id', 
+                'users.name as user_name'
+                //'pilot_trainings.id',
+                ///'pilot_trainings.extended_date',
+                //'pilot_trainings.next_due',
+                //'pilot_trainings.status',
+                //'pilot_trainings.created_at',
+                //'pilot_trainings.renewed_on'
+            )
+            ->where('user_certificates.certificate_type', 'training');
+            //->groupBy('pilot_trainings.training_id')
+            //->orderBy('pilot_trainings.id', 'DESC');
+        
         
         if(!empty($_POST['user_id']))
         {
-            $users->where('user_id',$_POST['user_id']);
+            $users->where('users.user_id',$_POST['user_id']);
         }
 
         $dates=date('Y-m-d');
@@ -200,7 +231,7 @@ class LTMController extends Controller
             $dates=$_POST['dates'];
         }
         
-        $total_row=$users->count();
+        $total_row=$users->get()->count();
         if (!empty($_POST['search']['value'])) {
             $search = $_POST['search']['value'];
             $users->where(function ($q) use($search){
@@ -213,34 +244,39 @@ class LTMController extends Controller
 		if (isset($_POST['order'])) {
             $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else {
-            $users->orderBy('id', 'desc');
+            $users->orderBy('user_certificates.id', 'desc');
         }
-		$filter_row =$users->count();
+		$filter_row =$users->get()->count();
         if (isset($_POST["length"]) && $_POST["length"] != -1) {
             $users->skip($_POST["start"])->take($_POST["length"]);
 		}
         $result =$users->get();
         $data = array();
 		foreach($result as $key => $value) {
+		    $action  = '';
+		    $d=PilotTraining::where('user_id',$value->user_id)->where('training_id',$value->master_id)->orderBy('id','DESC')->first();
             if(getUserType()=='user')
-            {
-                $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'training\')" class="btn btn-primary btn-sm m-1">View</a>';
-                $action  .= '<a href="'.route('user.certificate.trainings.log', $value->training->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
+            {   
+                if(!empty($d))
+                {
+                    $action  .= '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'training\')" class="btn btn-primary btn-sm m-1">View</a>';
+                }
+                $action  .= '<a href="'.route('user.certificate.trainings.log', $value->master_id).'" class="btn btn-warning btn-sm m-1">Log</a>';
             }else{
-                $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+                $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
             }
             
             $status='Active';
             $sub_array = array();
 			$sub_array[] = ++$key;
-            $sub_array[] = $value->user->salutation.' '.$value->user->name;
-            $sub_array[] = $value->training->name;
-            $sub_array[] = '<b>' . $value->renewed_on . '</b>';
-            $sub_array[] = $value->extended_date;
-            $sub_array[] = $value->next_due;
-            if(strtotime($value->next_due) > strtotime($dates))
+            $sub_array[] = $value->salutation.' '.$value->user_name;
+            $sub_array[] = !empty($d)?$d->name:'';
+            $sub_array[] = !empty($d)?'<b>' . $d->renewed_on . '</b>':'';
+            $sub_array[] = !empty($d)?$d->extended_date:'';
+            $sub_array[] = !empty($d)?$d->next_due:'';
+            if(!empty($d)&&strtotime($d->next_due) > strtotime($dates))
             {
-                $day=\Carbon\Carbon::parse( $dates )->diffInDays($value->next_due );  
+                $day=\Carbon\Carbon::parse( $dates )->diffInDays($d->next_due );  
                 $bt='style="background-color: #1e24dd;color: white;"';
                 if($day<=60)
                 {
@@ -271,15 +307,34 @@ class LTMController extends Controller
     
     public function monitoringMedicalList(Request $request)
     {
-        $column=['id','id','users.salutation','users.name','medical.name','renewed_on','extended_date','next_due','status','created_at','id','id'];
-        $users=PilotMedical::with(['user'=>function($q) {
-            $q->where('status','active');
-        }])->where('is_applicable','yes')->groupBy('medical_id')->groupBy('user_id');
-        $users->orderBy('id', 'desc');
-
+        //$column=['pilot_medicals.id','pilot_medicals.id','users.salutation','users.name','masters.name','pilot_medicals.planned_renewal_date','pilot_medicals.extended_date','pilot_medicals.next_due','pilot_medicals.status','pilot_medicals.created_at','pilot_medicals.id','pilot_medicals.id'];
+        $column=['user_certificates.id','user_certificates.id','users.salutation','users.name','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id'];
+       
+        $users = DB::table('user_certificates')
+            //->leftjoin('pilot_medicals', 'user_certificates.master_id', '=', 'pilot_medicals.medical_id')
+            ->leftjoin('masters', 'user_certificates.master_id', '=', 'masters.id')
+            ->leftjoin('users', 'user_certificates.user_id', '=', 'users.id')
+            ->select(
+                'masters.id as master_id', 
+                'masters.name as name',
+                'users.salutation', 
+                'users.id as user_id', 
+                'users.name as user_name' 
+                //'pilot_medicals.id',
+                //'pilot_medicals.extended_date',
+                //'pilot_medicals.next_due',
+                //'pilot_medicals.status',
+                //'pilot_medicals.created_at',
+                //'pilot_medicals.planned_renewal_date'
+            )
+            ->where('user_certificates.certificate_type', 'medical');
+            //->groupBy('pilot_medicals.medical_id')
+            //->orderBy('pilot_medicals.id', 'DESC');
+            
+            
         if(!empty($_POST['user_id']))
         {
-            $users->where('user_id',$_POST['user_id']);
+            $users->where('users.user_id',$_POST['user_id']);
         }
         
         $dates=date('Y-m-d');
@@ -288,7 +343,7 @@ class LTMController extends Controller
             $dates=$_POST['dates'];
         }
         
-        $total_row=$users->count();
+        $total_row=$users->get()->count();
         if (!empty($_POST['search']['value'])) {
             $search = $_POST['search']['value'];
             $users->where(function ($q) use($search){
@@ -300,34 +355,38 @@ class LTMController extends Controller
 		if (isset($_POST['order'])) {
             $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else {
-            $users->orderBy('id', 'desc');
+            $users->orderBy('user_certificates.id', 'desc');
         }
-		$filter_row =$users->count();
+		$filter_row =$users->get()->count();
         if (isset($_POST["length"]) && $_POST["length"] != -1) {
             $users->skip($_POST["start"])->take($_POST["length"]);
 		}
         $result =$users->get();
         $data = array();
 		foreach($result as $key => $value) {
-           
+		    $action  ='';
+           $d=PilotMedical::where('user_id',$value->user_id)->where('medical_id',$value->master_id)->orderBy('id','DESC')->first();
             if(getUserType()=='user')
             {
-                $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'medical\')" class="btn btn-primary btn-sm m-1">View</a>';
-                $action  .= '<a href="'.route('user.certificate.medicals.log', $value->medical->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
+                if(!empty($d))
+                {
+                $action  .= '<a href="javascript:void(0);" onclick="showData('.$d->id.',\'medical\')" class="btn btn-primary btn-sm m-1">View</a>';
+                }
+                $action  .= '<a href="'.route('user.certificate.medicals.log', $value->master_id).'" class="btn btn-warning btn-sm m-1">Log</a>';
             }else{
-                $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+                $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
             }
             $status='Active';
             $sub_array = array();
 			$sub_array[] = ++$key;
-            $sub_array[] = $value->user->salutation.' '.$value->user->name;
-            $sub_array[] = $value->medical->name;
-            $sub_array[] = '<b>' . $value->planned_renewal_date . '</b>';
-            $sub_array[] = $value->extended_date;
-            $sub_array[] = $value->next_due;
-            if(strtotime($value->next_due) > strtotime($dates))
+            $sub_array[] = $value->salutation.' '.$value->user_name;
+            $sub_array[] = !empty($d)?$d->name:'';
+            $sub_array[] = !empty($d)?'<b>' . $d->planned_renewal_date . '</b>':'';
+            $sub_array[] = !empty($d)?$d->extended_date:'';
+            $sub_array[] = !empty($d)?$d->next_due:'';
+            if(!empty($d)&&strtotime($d->next_due) > strtotime($dates))
             {
-                $day=\Carbon\Carbon::parse( $dates )->diffInDays($value->next_due );  
+                $day=\Carbon\Carbon::parse( $dates )->diffInDays($d->next_due );  
                 $bt='style="background-color: #1e24dd;color: white;"';
                 if($day<=60)
                 {
@@ -358,14 +417,33 @@ class LTMController extends Controller
     
     public function monitoringQualificationList(Request $request)
     {
-        $column=['id','id','users.salutation','users.name','qualification.name','renewed_on','extended_date','next_due','status','created_at','id','id'];
-        $users=PilotQualification::with(['user'=>function($q) {
-            $q->where('status','active');
-        }])->where('is_applicable','yes');
-
+        //$column=['pilot_qualifications.id','pilot_qualifications.id','users.salutation','users.name','qualification.name','pilot_qualifications.renewed_on','pilot_qualifications.extended_date','pilot_qualifications.next_due','pilot_qualifications.status','pilot_qualifications.created_at','pilot_qualifications.id','pilot_qualifications.id'];
+        $column=['user_certificates.id','user_certificates.id','users.salutation','users.name','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id'];
+        
+         $users = DB::table('user_certificates')
+            //->leftjoin('pilot_qualifications', 'user_certificates.master_id', '=', 'pilot_qualifications.qualification_id')
+            ->leftjoin('masters', 'user_certificates.master_id', '=', 'masters.id')
+            ->leftjoin('users', 'user_certificates.user_id', '=', 'users.id')
+            ->select(
+                'masters.id as master_id', 
+                'masters.name as name',
+                'users.salutation', 
+                'users.id as user_id', 
+                'users.name as user_name' 
+                //'pilot_qualifications.id',
+                //'pilot_qualifications.extended_date',
+                //'pilot_qualifications.next_due',
+                //'pilot_qualifications.status',
+                //'pilot_qualifications.created_at',
+                //'pilot_qualifications.renewed_on'
+            )
+            ->where('user_certificates.certificate_type', 'qualification');
+            //->groupBy('pilot_qualifications.qualification_id')
+            //->orderBy('pilot_qualifications.id', 'DESC');
+        
         if(!empty($_POST['user_id']))
         {
-            $users->where('user_id',$_POST['user_id']);
+            $users->where('users.user_id',$_POST['user_id']);
         }
         $dates=date('Y-m-d');
         if(!empty($_POST['dates']))
@@ -373,7 +451,7 @@ class LTMController extends Controller
             $dates=$_POST['dates'];
         }
         
-        $total_row=$users->count();
+        $total_row=$users->get()->count();
         if (!empty($_POST['search']['value'])) {
             $search = $_POST['search']['value'];
             $users->where(function ($q) use($search){
@@ -386,34 +464,38 @@ class LTMController extends Controller
 		if (isset($_POST['order'])) {
             $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else {
-            $users->orderBy('id', 'desc');
+            $users->orderBy('user_certificates.id', 'desc');
         }
-		$filter_row =$users->count();
+		$filter_row =$users->get()->count();
         if (isset($_POST["length"]) && $_POST["length"] != -1) {
             $users->skip($_POST["start"])->take($_POST["length"]);
 		}
         $result =$users->get();
         $data = array();
 		foreach($result as $key => $value) {
-           
+           $action  ='';
+            $d=PilotQualification::where('user_id',$value->user_id)->where('qualification_id',$value->master_id)->orderBy('id','DESC')->first();
             if(getUserType()=='user')
-            {
-                $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'qualification\')" class="btn btn-primary btn-sm m-1">View</a>';
-                $action  .= '<a href="'.route('user.certificate.qualifications.log', $value->qualification->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
+            {   
+                if(!empty($d))
+                {
+                $action  .= '<a href="javascript:void(0);" onclick="showData('.$d->id.',\'qualification\')" class="btn btn-primary btn-sm m-1">View</a>';
+                }
+                $action  .= '<a href="'.route('user.certificate.qualifications.log', $value->master_id).'" class="btn btn-warning btn-sm m-1">Log</a>';
             }else{
-                $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+                $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
             }
             $status='Active';
             $sub_array = array();
 			$sub_array[] = ++$key;
-            $sub_array[] = $value->user->salutation.' '.$value->user->name;
-            $sub_array[] = $value->qualification->name;
-            $sub_array[] = '<b>' . $value->renewed_on . '</b>';
-            $sub_array[] = $value->extended_date;
-            $sub_array[] = $value->next_due;
-            if(strtotime($value->next_due) > strtotime($dates))
+            $sub_array[] = $value->salutation.' '.$value->user_name;
+            $sub_array[] = !empty($d)?$d->name:'';
+            $sub_array[] = !empty($d)?'<b>' . $d->renewed_on . '</b>':'';
+            $sub_array[] = !empty($d)?$d->extended_date:'';
+            $sub_array[] = !empty($d)?$d->next_due:'';
+            if(!empty($d)&&strtotime($d->next_due) > strtotime($dates))
             {
-                $day=\Carbon\Carbon::parse( $dates )->diffInDays($value->next_due );  
+                $day=\Carbon\Carbon::parse( $dates )->diffInDays($d->next_due );  
                 $bt='style="background-color: #1e24dd;color: white;"';
                 if($day<=60)
                 {
@@ -444,14 +526,24 @@ class LTMController extends Controller
     
     public function monitoringGroundTrainingList(Request $request)
     {
-        $column=['id','id','users.salutation','users.name','training.name','renewed_on','extended_date','next_due','status','created_at','id','id'];
-        $users=PilotGroundTraining::with(['user'=>function($q) {
-            $q->where('status','active');
-        }])->where('is_applicable','yes')->groupBy('training_id')->groupBy('user_id');
-        $users->orderBy('id', 'desc');
+        //$column=['pilot_ground_trainings.id','pilot_ground_trainings.id','users.salutation','users.name','masters.name','pilot_ground_trainings.renewed_on','pilot_ground_trainings.extended_date','pilot_ground_trainings.next_due','pilot_ground_trainings.status','pilot_ground_trainings.created_at','pilot_ground_trainings.id','pilot_ground_trainings.id'];
+        $column=['user_certificates.id','user_certificates.id','users.salutation','users.name','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id','user_certificates.id'];
+        
+        $users = DB::table('user_certificates')
+            ->leftjoin('masters', 'user_certificates.master_id', '=', 'masters.id')
+            ->leftjoin('users', 'user_certificates.user_id', '=', 'users.id')
+            ->select(
+                'masters.id as master_id', 
+                'masters.name as name',
+                'users.salutation', 
+                'users.id as user_id', 
+                'users.name as user_name' 
+            )
+            ->where('user_certificates.certificate_type', 'ground_training');
+            
         if(!empty($_POST['user_id']))
         {
-            $users->where('user_id',$_POST['user_id']);
+            $users->where('users.user_id',$_POST['user_id']);
         }
         $dates=date('Y-m-d');
         if(!empty($_POST['dates']))
@@ -459,7 +551,7 @@ class LTMController extends Controller
             $dates=$_POST['dates'];
         }
         
-        $total_row=$users->count();
+        $total_row=$users->get()->count();
         if (!empty($_POST['search']['value'])) {
             $search = $_POST['search']['value'];
             $users->where(function ($q) use($search){
@@ -472,34 +564,39 @@ class LTMController extends Controller
 		if (isset($_POST['order'])) {
             $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
 		} else {
-            $users->orderBy('id', 'desc');
+            $users->orderBy('user_certificates.id', 'desc');
         }
-		$filter_row =$users->count();
+		$filter_row =$users->get()->count();
         if (isset($_POST["length"]) && $_POST["length"] != -1) {
             $users->skip($_POST["start"])->take($_POST["length"]);
 		}
         $result =$users->get();
         $data = array();
 		foreach($result as $key => $value) {
-           
+		    
+            $d=PilotGroundTraining::where('user_id',$value->user_id)->where('training_id',$value->master_id)->orderBy('id','DESC')->first();
+             $action  = '';
             if(getUserType()=='user')
-            {
-                $action  = '<a href="javascript:void(0);" onclick="showData('.$value->id.',\'groundtraining\')" class="btn btn-primary btn-sm m-1">View</a>';
-                $action  .= '<a href="'.route('user.certificate.groundTrainings.log', $value->training->id).'" class="btn btn-warning btn-sm m-1">Log</a>';
+            {   
+                if(!empty($d))
+                {
+                $action  .= '<a href="javascript:void(0);" onclick="showData('.$d->id.',\'groundtraining\')" class="btn btn-primary btn-sm m-1">View</a>';
+                }
+                $action  .= '<a href="'.route('user.certificate.groundTrainings.log', $value->master_id).'" class="btn btn-warning btn-sm m-1">Log</a>';
             }else{
-                $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+                $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
             }
             $status='Active';
             $sub_array = array();
 			$sub_array[] = ++$key;
-            $sub_array[] = $value->user->salutation.' '.$value->user->name;
-            $sub_array[] = $value->training->name;
-            $sub_array[] = '<b>' . $value->renewed_on . '</b>';
-            $sub_array[] = $value->extended_date;
-            $sub_array[] = $value->next_due;
-            if(strtotime($value->next_due) > strtotime($dates))
+            $sub_array[] = $value->salutation.' '.$value->user_name;
+            $sub_array[] = $value->name;
+            $sub_array[] = !empty($d)?'<b>' . $d->renewed_on . '</b>':'';
+            $sub_array[] = !empty($d)?$d->extended_date:'';
+            $sub_array[] = !empty($d)?$d->next_due:'';
+            if(!empty($d)&&strtotime($d->next_due) > strtotime($dates))
             {
-                $day=\Carbon\Carbon::parse( $dates )->diffInDays($value->next_due );  
+                $day=\Carbon\Carbon::parse( $dates )->diffInDays($d->next_due );  
                 $bt='style="background-color: #1e24dd;color: white;"';
                 if($day<=60)
                 {
@@ -563,7 +660,7 @@ class LTMController extends Controller
         $data = array();
 		foreach($result as $key => $value) {
        
-            $action  = '<a href="'.route('app.pilot.licenses', $value->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+            $action  = '<a href="'.route('app.pilot.licenses', $value->user->id).'" class="btn btn-primary btn-sm m-1">View</a>';
             
             $sub_array = array();
 			$sub_array[] = ++$key;
@@ -586,6 +683,7 @@ class LTMController extends Controller
 		);
 		echo json_encode($output);
     }
+    
     public function historyTrainingList(Request $request)
     {
         $column=['id','id','emp_id','name','email','phone','designation','status','created_at','id','id'];
@@ -643,6 +741,7 @@ class LTMController extends Controller
 		);
 		echo json_encode($output);
     }
+    
     public function historyMedicalList(Request $request)
     {
         $column=['id','id','emp_id','name','email','phone','designation','status','created_at','id','id'];
@@ -676,7 +775,7 @@ class LTMController extends Controller
         $data = array();
 		foreach($result as $key => $value) {
            
-            $action  = '<a href="'.route('app.pilot.licenses', $value->id).'" class="btn btn-primary btn-sm m-1">View</a>';
+            $action  = '<a href="'.route('app.pilot.licenses', $value->user_id).'" class="btn btn-primary btn-sm m-1">View</a>';
             //$action .= '<a href="'.route('app.pilot.licenses', $value->id).'" class="btn btn-success btn-sm m-1">License Traning & Medical</a>';
             
             $status='<select class="form-control" onchange="changeStatus('.$value->id.',this.value);">';

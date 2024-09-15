@@ -19,9 +19,7 @@ class StampticketController extends Controller
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            // 'stamp_ticket_id.*' => 'required|exists:stamp_ticket_types,id',
             'transaction_type' => 'required|string',
-            // 'quantity.*' => 'required|numeric',
             'comment' => 'nullable|string'
         ]);
 
@@ -72,7 +70,6 @@ class StampticketController extends Controller
     public function assign(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            // 'stamp_ticket_id.*' => 'required|exists:stamp_ticket_types,id',
             'user_id' => 'required|numeric',
             'comment' => 'nullable|string'
         ]);
@@ -89,7 +86,6 @@ class StampticketController extends Controller
             $quantity = $request->quantity;
             $comment = $request->comment;
             $user_id = $request->user_id;
-            //print_r($request->all());die;
             foreach ($stamp_ticket as $key => $stampId) {
                 if(!empty($quantity[$key]))
                 {

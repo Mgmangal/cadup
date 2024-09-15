@@ -10,7 +10,7 @@ class RoleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Role Add|Role Edit|Role Delete|Role View']);
+        //$this->middleware(['permission:Role Add|Role Edit|Role Delete|Role View']);
     }
     public function index()
     {
@@ -74,12 +74,12 @@ class RoleController extends Controller
         $data = array();
         foreach ($result as $key => $value) {
             $action = '';
-            if (auth()->user()->can('Role Edit')) {
-                $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.roles.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-            }
+            
+            $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.roles.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+            
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.roles.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="' . route('app.settings.permissions', $value->id) . '" class="btn btn-success btn-sm m-1">Permission</a>';
-            if ($value->id != 1 && auth()->user()->can('Role Delete')) {
+            if ($value->id != 1) {
                 $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.roles.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
             }
             $sub_array = array();
@@ -112,6 +112,7 @@ class RoleController extends Controller
         $role = Role::find($id);
         $role->delete();
         $role->permissions()->detach();
+        clearCache();
         return response()->json([
             'success' => true,
             'message' => 'Role Deleted Successfully'
@@ -128,11 +129,13 @@ class RoleController extends Controller
     public function permissions($id)
     {
         $role = Role::with('permissions')->find($id);
+
         if ($role->parent_id != 0) {
-            $permissions = Role::with('permissions')->find($role->parent_id)->permissions()->get();
+            $permissions = Role::with('permissions')->find($role->parent_id)->permissions()->orderBy('name', 'asc')->get();
         } else {
-            $permissions = Permission::all();
+            $permissions = Permission::orderBy('name', 'asc')->get();
         }
+
         return view('settings.roles.permissions', compact('role', 'permissions'));
     }
 
@@ -140,6 +143,7 @@ class RoleController extends Controller
     {
         $role = Role::find($id);
         $role->permissions()->sync($request->permissions);
+        clearCache();
         return response()->json([
             'success' => true,
             'message' => 'Permissions Updated Successfully'

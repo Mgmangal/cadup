@@ -52,7 +52,7 @@ class PilotGroundTraining extends Model
     }
     public function getRenewedOnAttribute($value)
     {
-        return !empty($value)?date('d-m-Y', strtotime($value)):'';
+        return !empty($value)&&$value!='0000-00-00'?date('d-m-Y', strtotime($value)):'';
     }
     public function setPlannedRenewalDateAttribute($value)
     {

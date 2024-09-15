@@ -20,7 +20,7 @@ class AirCraftController extends Controller
         $masters=Master::where('type','=','aircraft_type')->where('is_delete','0')->get();
         return view('air_crafts.create',compact('pilots','masters'));
     }
-    
+
     public function store(Request $request)
     {
         $validation=Validator::make($request->all(),[
@@ -36,20 +36,20 @@ class AirCraftController extends Controller
         if ($validation->fails()) {
             return response()->json(['error'=>$validation->errors()]);
         }
-       
+
         $aircraft = new AirCraft();
         $aircraft->aircraft_type = $request->aircraft_type;
         $aircraft->aircraft_cateogry = $request->aircraft_cateogry;
         $aircraft->manufacturer = $request->manufacturer;
         $aircraft->type_model = $request->type_model;
         $aircraft->call_sign = $request->call_sign;
-        $aircraft->me_se = $request->me_se; 
+        $aircraft->me_se = $request->me_se;
         $aircraft->pilots = $request->pilots;
         $aircraft->manufacturing_year = $request->manufacturing_year;
         // $aircraft->operation_start_date = is_set_date_format($request->operation_start_date);
         // $aircraft->operation_end_date = is_set_date_format($request->operation_end_date);
         $aircraft->save();
-       
+
         return response()->json(['success'=>true,'message'=>'Aircraft Added Successfully']);
     }
 
@@ -125,7 +125,7 @@ class AirCraftController extends Controller
     }
     public function update(Request $request, $id)
     {
-       
+
         $validation=Validator::make($request->all(),[
             'aircraft_cateogry' => 'required',
             'manufacturer' => 'required',
@@ -133,7 +133,7 @@ class AirCraftController extends Controller
             'call_sign' => 'required',
             'me_se' => 'required',
             'manufacturing_year' => 'required',
-            
+
         ]);
         if ($validation->fails()) {
             return response()->json(['error'=>$validation->errors()]);
@@ -172,7 +172,7 @@ class AirCraftController extends Controller
         $html .= '<tr><th>Name</th><th>Type</th><th>Mendatory </th><th>Current For Flying</th></tr>';
         foreach ($licenses as $key => $value) {
             $d = MasterAssign::where('master_id', $id)->where('is_for','=','aircraft')->where('certificate_id', $value->id)->first();
-            $html .= '<tr>'; 
+            $html .= '<tr>';
             $html .= '<td>';
             $html .= '<div class="form-check m-2">
                             <input type="hidden" name="edit_id[' . $key . ']" value="' . (!empty($d->id) ? $d->id : '') . '">

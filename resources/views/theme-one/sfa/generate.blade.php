@@ -1,4 +1,4 @@
-@extends('theme-one.layouts.app',['title' => 'SFA','sub_title'=>'Generate'])
+@extends('theme-one.layouts.app',['title' => 'SFA','sub_title' => $sub_title])
 @section('css')
 <link href="{{asset('assets/theme_one/lib/datatables.net-dt/css/jquery.dataTables.min.css')}}" rel="stylesheet">
 <link href="{{asset('assets/theme_one/lib/datatables.net-responsive-dt/css/responsive.dataTables.min.css')}}"
@@ -9,20 +9,22 @@
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between">
-        <h3 class="card-title">SFA Generate</h3>
+        <h3 class="card-title">{{ $sub_title }}</h3>
     </div>
     <div class="card-body">
         <div class="row mb-3">
             <div class="col-sm-2">
                 <div class="form-group">
                     <lable for="pilots">Crew</lable>
-                    <select class="form-control filter" id="pilots" name="pilots" form="sfa-form" required readonly>
-                        <!-- <option value="">Select</option> -->
-                        @foreach($pilots as $pilot)
-                        @if(Auth::user()->id == $pilot->id)
-                        <option {{Auth::user()->id == $pilot->id ? 'selected' : ''}} value="{{$pilot->id}}">{{$pilot->salutation.' '.$pilot->name}}</option>
+                    <select name="pilots" id="pilots" class="form-control filter" form="sfa-form" required>
+                        @if($pilots->count() == 1 && $pilots->first()->id == Auth::user()->id)
+                            <option value="{{ $pilots->first()->id }}">{{ $pilots->first()->salutation . ' ' . $pilots->first()->name }}</option>
+                        @else
+                            <option value="">Select Poilot</option>
+                            @foreach($pilots as $pilot)
+                                <option value="{{ $pilot->id }}">{{ $pilot->salutation . ' ' . $pilot->name }}</option>
+                            @endforeach
                         @endif
-                        @endforeach
                     </select>
                 </div>
             </div>
@@ -112,7 +114,7 @@
         <div class="row">
             <div class="col-sm-10"></div>
             <div class="col-sm-2">
-                <form action="{{route('user.sfa.generate')}}" method="post" id="sfa-form" class="text-right">
+                <form action="{{route('user.sfa.sfaStore')}}" method="post" id="sfa-form" class="text-right">
                     @csrf
                     <input type="hidden" name="total_price" id="total_price">
                     <input type="submit" name="submit_btn" id="submit_btn" value="Generate SFA Report" class="btn btn-primary d-none">
@@ -166,108 +168,99 @@
 <script src="{{asset('assets/theme_one/lib/datatables.net-responsive-dt/js/responsive.dataTables.min.js')}}"></script>
 <script src="https://cdn.ckeditor.com/4.17.1/standard/ckeditor.js"></script>
 <script>
-$('.datepicker').datepicker({
-    autoclose: true,
-    format: 'dd-mm-yyyy',
-    calendarWeeks: false,
-    zIndexOffset: 9999,
-    orientation: "bottom"
-});
+    $('.datepicker').datepicker({
+        autoclose: true,
+        format: 'dd-mm-yyyy',
+        calendarWeeks: false,
+        zIndexOffset: 9999,
+        orientation: "bottom"
+    });
 
-function dataList() {
-    $('#datatableDefault').DataTable().destroy();
-    var pilot = $('#pilots').val();
-    var from_date = $('#from_date').val();
-    var to_date = $('#to_date').val();
-    $('#datatableDefault').DataTable({
-        processing: true,
-        serverSide: true,
-        searching: false,
-        paging: false,
-        info: false,
-        order: [
-            [1, 'desc']
-        ],
-        orderable: false,
-        lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
-        responsive: true,
-        fixedColumns: true,
-        "columnDefs": [{
-                "orderable": false,
-                "targets": [2, 3, 4, 5, 6, 7, 8, 9, 10]
-            } // Disable order on first columns
-        ],
-        ajax: {
-            url: "{{route('app.sfa.list')}}",
-            type: 'POST',
-            data: {
-                "_token": "{{ csrf_token() }}",
-                pilot,
-                from_date,
-                to_date
+    function dataList()
+    {
+        $('#datatableDefault').DataTable().destroy();
+        var pilot=$('#pilots').val();
+        var from_date=$('#from_date').val();
+        var to_date=$('#to_date').val();
+        $('#datatableDefault').DataTable({
+            processing: true,
+            serverSide: true,
+            searching: false,
+            paging: false,
+            info: false,
+            order: [[1, 'desc']],
+            orderable: false,
+            lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
+            responsive: true,
+            fixedColumns: true,
+                    "columnDefs": [
+                { "orderable": false, "targets": [2,3,4,5,6,7,8,9,10] }  // Disable order on first columns
+            ],
+            ajax: {
+                url: "{{route('user.sfa.flyinglist')}}",
+                type: 'POST',
+                data:{"_token": "{{ csrf_token() }}",pilot,from_date,to_date},
             },
-        },
-        fnRowCallback: function(nRow, aData, iDisplayIndex) {
-            var oSettings = this.fnSettings();
-            $("td:eq(0)", nRow).html(oSettings._iDisplayStart + iDisplayIndex + 1);
-        },
-        "initComplete": function() {
+            fnRowCallback: function( nRow, aData, iDisplayIndex ) {
+                var oSettings = this.fnSettings ();
+                $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
+            },
+            "initComplete": function(){
 
-        },
-        drawCallback: function(settings) {
-            $('#totalBlockTime').html(settings.json.total_time);
-            $("#total-price").html(settings.json.total_payable_amount);
-            $("#total_price").val(settings.json.total_payable_amount);
-            $("#certified_that").html(settings.json.certified_that);
-            $(".certified_that").val(settings.json.certified_that);
-            $("#certified_that_action").html(
-                '<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="updateCertifiedThat();">Edit</a>'
-                );
-            if(settings.json.data.length > 0){
-                $('#submit_btn').removeClass('d-none');
-            }
-        },
-    });
-}
-
-$('.filter').on('change', function() {
-    if ($('#pilots').val().length > 0 && $('#from_date').val().length > 0) {
-        dataList();
+            },
+            drawCallback: function(settings) {
+                $('#totalBlockTime').html(settings.json.total_time);
+                $("#total-price").html(settings.json.total_payable_amount);
+                $("#total_price").val(settings.json.total_payable_amount);
+                $("#certified_that").html(settings.json.certified_that);
+                $(".certified_that").val(settings.json.certified_that);
+                $("#certified_that_action").html('<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="updateCertifiedThat();">Edit</a>');
+                if(settings.json.data.length > 0){
+                    $('#submit_btn').removeClass('d-none');
+                }
+            },
+        });
     }
-});
-dataList();
-function calPrice(e) {
 
-    var rate_per_hour = $(e).val();
-    var rate_per_minut = rate_per_hour / 60; //Math.floor(rate_per_hour/60);
-    var time = $(e).parent('td').prev().prev().html();
-    var total_amount = $(e).parent('td').parent('tr').parent('tbody').next().find("#total-price");
-
-    var time_array = time.split(":");
-    var total_minut = parseInt(time_array[0] * 60) + parseInt(time_array[1]);
-    var amount = rate_per_minut * total_minut; //Math.round(rate_per_minut*total_minut);
-    $(e).parent('td').next().find('.amount').val(amount.toFixed(2));
-    var total = 0;
-    $('.amount').each(function() {
-        var row_amount = $(this).val();
-        if (row_amount != "undefined" && row_amount != "")
-            total = parseFloat(total) + parseFloat(row_amount);
+    $('.filter').on('change',function(){
+        if($('#pilots').val().length>0&&$('#from_date').val().length>0&&$('#to_date').val().length>0)
+        {
+            dataList();
+        }
     });
-    total_amount.html(total.toFixed(2));
-}
+    function calPrice(e){
 
-function updateCertifiedThat() {
-    $('#manageModal').modal('show');
-    $('#textarea_certify_that').html($('.certified_that').val());
-    CKEDITOR.replace('textarea_certify_that');
-}
+        var rate_per_hour = $(e).val();
+        var rate_per_minut = rate_per_hour/60; //Math.floor(rate_per_hour/60);
+        var time = $(e).parent('td').prev().prev().html();
+        var total_amount = $(e).parent('td').parent('tr').parent('tbody').next().find("#total-price");
 
-function saveCertifiedThat(input) {
-    $('#manageModal').modal('hide');
-    $('#textarea_certify_that').html();
-    var data = CKEDITOR.instances.textarea_certify_that.getData();
-    $('#certified_that').html(data);
-    $('.certified_that').val(data);
-}
+        var time_array = time.split(":");
+        var total_minut = parseInt(time_array[0]*60) + parseInt(time_array[1]);
+        var amount = rate_per_minut*total_minut;//Math.round(rate_per_minut*total_minut);
+        $(e).parent('td').next().find('.amount').val(amount.toFixed(2));
+        var total = 0;
+        $('.amount').each(function(){
+            var row_amount = $(this).val();
+            if(row_amount!="undefined" && row_amount!="" )
+                total = parseFloat(total) + parseFloat(row_amount);
+        });
+        total_amount.html(total.toFixed(2));
+    }
+
+    function updateCertifiedThat()
+    {
+        $('#manageModal').modal('show');
+        $('#textarea_certify_that').html($('.certified_that').val());
+        CKEDITOR.replace('textarea_certify_that');
+    }
+    function saveCertifiedThat(input)
+    {
+        $('#manageModal').modal('hide');
+        $('#textarea_certify_that').html();
+        var data = CKEDITOR.instances.textarea_certify_that.getData();
+        $('#certified_that').html(data);
+        $('.certified_that').val(data);
+    }
 </script>
 @endsection

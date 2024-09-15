@@ -10,7 +10,7 @@ class DesignationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Designation Add|Designation Edit|Designation Delete|Designation View']);
+        //$this->middleware(['permission:Designation Add|Designation Edit|Designation Delete|Designation View']);
     }
 
     public function index()
@@ -40,6 +40,8 @@ class DesignationController extends Controller
                 $master = new Master();
                 $master->name = $name;
                 $master->type = 'designation';
+                $master->status='active';
+                $master->is_delete='0';
                 $master->save();
             }
             return response()->json([
@@ -78,15 +80,15 @@ class DesignationController extends Controller
         foreach ($result as $key => $value) {
 
             $action = '';
-            if (auth()->user()->can('Designation Edit')) {
+            
                 $action = '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.designations.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
                 $action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
                 $action .= '<a href="javascript:void(0);" onclick="mapLeave(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">Assign Leave</a>';
-            }
+           
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.designations.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-            if (auth()->user()->can('Designation Delete')) {
+            
                 $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.designations.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            }
+            
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;

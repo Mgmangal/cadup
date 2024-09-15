@@ -34,7 +34,7 @@
         <?php
         if(!empty($all_flying))
         {
-            $total_time = 0;
+            $total_time = array();
             $total_amount = 0;
             $is_first_tbl=1;
             $page_break=1;
@@ -102,8 +102,7 @@
                         <td class="td-body"></td>
                         <td class="td-body"></td>
                         <td class="td-body"></td>
-                        <!--<td class="td-body" style="font-weight: bold;"><?=date("H:i", $total_time-19800)?></td>-->
-                        <td class="td-body" style="font-weight: bold;"><?=date("H:i", $total_time)?></td>
+                        <td class="td-body" style="font-weight: bold;"><?=AddPlayTime($total_time)?></td>
                         <td class="td-body"></td>
                         <td class="td-body"></td>
                         <td class="td-body" style="font-weight: bold;"> <?=number_format($total_amount,2)?></td>
@@ -112,8 +111,8 @@
                 <?php
                 }
                 $total_amount += round($v[9],2);
-                $time_array = explode(":", $v[6]);
-                $total_time += $time_array[0]*60*60 + $time_array[1]*60;
+                $total_time[] =$v[6];
+
                 ?>
                 <tr>
                     <td class="td-body"><?=$v[0]?></td>
@@ -141,8 +140,7 @@
                     <td class="td-body"></td>
                     <td class="td-body"></td>
                     <td class="td-body" style="font-weight: bold;">Total</td>
-                    <!--<td class="td-body" style="font-weight: bold;"><?=date("H:i", $total_time-19800)?></td>-->
-                    <td class="td-body" style="font-weight: bold;"><?=date("H:i", $total_time)?></td>
+                    <td class="td-body" style="font-weight: bold;"><?=AddPlayTime($total_time)?></td>
                     <td class="td-body"></td>
                     <td class="td-body"></td>
                     <td class="td-body" style="font-weight: bold;"> <?=number_format(round($total_amount),2)?></td>

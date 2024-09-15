@@ -47,7 +47,7 @@ class LoginController extends Controller
                 return '/admin/home';
                 break;
             case 'user':
-                return '/users/home';
+                return '/user/home';
                 break;
         }
     }

@@ -121,7 +121,7 @@
             </div>
         </div>
     </div>
-    
+
 
     <x-slot name="js">
          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
@@ -142,12 +142,12 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 // maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
                 }
             });
-            
+
             function dataList() {
                 $('#datatableDefault').DataTable().destroy();
                 $('#datatableDefault').DataTable({
@@ -181,32 +181,32 @@
                             "_token": "{{ csrf_token() }}",from_date:$('#from_date').val(),to_date:$('#to_date').val(),aircraft:$('#aircraft').val(),pilot:$('#pilot').val(),flying_type:$('#flying_type').val()
                         },
                     },
-                    fnRowCallback: function( nRow, aData, iDisplayIndex ) { 
+                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {
                         var oSettings = this.fnSettings ();
                         $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
                         $('td:eq(5)', nRow).css('text-align','center');
                     },
                     "initComplete": function() {
-                            
+
                     }
                 });
             }
-            dataList(); 
-            
+            dataList();
+
             $('.filters').on('change',function(){
                 dataList();
             });
-            
+
             function unprocess()
-            {   
+            {
                 $('#modalLabel').html('Unprocess');
                 $('#types').val('unprocess');
                 $('#roleForm').find('.is-invalid').removeClass('is-invalid');
                 $('#roleForm').find('.invalid-feedback').hide();
                 $('#roleForm')[0].reset();
-                $('#manageModal').modal('show') 
+                $('#manageModal').modal('show')
             }
-            
+
             function process()
             {
                 $('#modalLabel').html('Process');
@@ -214,9 +214,9 @@
                 $('#roleForm').find('.is-invalid').removeClass('is-invalid');
                 $('#roleForm').find('.invalid-feedback').hide();
                 $('#roleForm')[0].reset();
-                $('#manageModal').modal('show') 
+                $('#manageModal').modal('show')
             }
-            
+
             $('#roleForm').submit(function(e) {
                 e.preventDefault();
                 $('#roleForm').find('.invalid-feedback').hide();
@@ -226,7 +226,7 @@
                     dataType: 'json',
                     data: $(this).serialize(),
                     beforeSend: function() {
-                        showLoader(); 
+                        showLoader();
                     },
                     success: function(response) {
                         if (response.success) {
@@ -245,7 +245,7 @@
                     }
                 })
             })
-            
+
             function analyzeViolation()
             {
                 $.ajax({
@@ -254,7 +254,7 @@
                     dataType: 'json',
                     data: {"_token": "{{ csrf_token() }}"},
                     beforeSend: function() {
-                       showLoader(); 
+                       showLoader();
                     },
                     success: function(response) {
                         console.log(response);
@@ -264,7 +264,7 @@
                     }
                 })
             }
-             
+
         </script>
     </x-slot>
 </x-app-layout>

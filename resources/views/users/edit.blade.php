@@ -452,7 +452,7 @@
                 clearBtn: true,
                 todayButton: true
             });
-            
+
             $('#department').select2({
                 width: 'resolve',
                 placeholder: 'Select Department'

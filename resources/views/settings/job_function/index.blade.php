@@ -19,9 +19,9 @@
         <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Job Function List </h3>
             <div>
-                @can('Job Function Add')
+                
                 <a href="javascript:void(0);" class="btn btn-primary btn-sm p-2" onclick="addNew();">Add New</a>
-                @endcan
+                 
             </div>
         </div>
         <div class="card-body">
@@ -88,7 +88,7 @@
                 <form action="{{route('app.license')}}" method="POST" id="licenseManageForm" class="">
                     @csrf
                     <div class="modal-body" id="license">
-                        
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -19,10 +19,11 @@ class TimeZoneConverter
         // Your existing logic to authenticate the request
         $response = $next($request);
         // Retrieve the timezone from session
-        $timezone = session('timezone', 'UTC');
+        $timezone = session('timezone', 'UTC'); 
         // Set the application timezone using Carbon
         Carbon::setToStringFormat('Y-m-d H:i:s');
         Carbon::now()->setTimezone($timezone);
+        config(['app.timezone' => $timezone]);
 
         return $response;
     }

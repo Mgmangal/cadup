@@ -63,7 +63,7 @@ function dataList() {
             }
         ],
         ajax: {
-            url: "{{route('app.contract.list')}}",
+            url: "{{route('user.contract')}}",
             type: 'POST',
             data: {
                 "_token": "{{ csrf_token() }}"

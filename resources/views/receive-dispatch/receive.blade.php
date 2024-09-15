@@ -93,7 +93,7 @@
                 
             </div>
             <div class="table-responsive">
-                <table id="datatableDefault" class="table text-nowrap w-100">
+                <table id="datatableDefault" class="table text-nowrap= w-100">
                     <thead>
                         <tr>
                             <th>SN</th>

@@ -10,7 +10,7 @@ class JobFunctionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Job Function Add|Job Function Edit|Job Function Delete|Job Function View']);
+        //$this->middleware(['permission:Job Function Add|Job Function Edit|Job Function Delete|Job Function View']);
     }
     public function index()
     {
@@ -44,6 +44,8 @@ class JobFunctionController extends Controller
                 $master->name = $name;
                 $master->type = 'job_function';
                 $master->parent_id = $section_id;
+                $master->status='active';
+                $master->is_delete='0';
                 $master->save();
             }
             return response()->json([
@@ -82,13 +84,12 @@ class JobFunctionController extends Controller
         foreach ($result as $key => $value) {
 
             $action = '';
-            if (auth()->user()->can('Job Function Edit')) {
-                $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.jobfunctions.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-                $action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
-            }
-            if (auth()->user()->can('Job Function Delete')) {
-                $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.jobfunctions.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            }
+            
+            $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.jobfunctions.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+            $action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
+            
+            $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.jobfunctions.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+           
 
             $sub_array = array();
             $sub_array[] = ++$key;

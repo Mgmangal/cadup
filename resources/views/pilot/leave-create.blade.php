@@ -30,7 +30,7 @@
             <form action="{{route('app.pilot.leave.store')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row m-2">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="user_id" class="form-label">Crew<span class="text-danger">*</span></label>
                             <select class="form-control" id="user_id" name="user_id" required
@@ -44,7 +44,7 @@
                         </div>
                         
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="master_id" class="form-label">Leave Type<span
                                     class="text-danger">*</span></label>
@@ -56,16 +56,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label for="documnets" class="form-label">Doc 1</label>
+                            <label for="documnets" class="form-label">Doc</label>
                             <input type="file" class="form-control" id="documnets" name="documnets">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="other_doc" class="form-label">Doc 2</label>
-                            <input type="file" class="form-control" id="other_doc" name="other_doc">
                         </div>
                     </div>
 
@@ -81,7 +75,7 @@
                         </div>
                         
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label for="status" class="form-label">Status<span class="text-danger">*</span></label>
                             <select class="form-control" id="status" name="status" required>
@@ -92,6 +86,13 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="no_of_days" class="form-label">Leave Duration</label>
+                            <input type="number" class="form-control" name="no_of_days" id="no_of_days" required onchange="checkValidLeave();">
+                        </div>
+                    </div>
+                    
                     <div class="col-md-4">
                         <div class="form-group mt-4">
                             <div class="row">
@@ -156,20 +157,23 @@
             // maxDate: '12/31/2018',
         }, function(start, end) {
             // $('#daterange input').val(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+             var days = end.diff(start, 'days') + 1;
+            //$('#no_of_days').val(days);
         });
 
         function checkValidLeave() {
             $('.text-danger').html('');
             var leave_dates = $('#leave_dates').val();
             var user_id = $('#user_id').val();
-            if( user_id == '') {
-                $('.user_error').html('Please Select User');
-                return false;
-            }
-            if(leave_dates == '') {
-                $('.date_error').html('Please Select Date');
-                return false;
-            }
+            var no_of_days = $('#no_of_days').val();
+            // if( user_id == '') {
+            //     $('.user_error').html('Please Select User');
+            //     return false;
+            // }
+            // if(leave_dates == '') {
+            //     $('.date_error').html('Please Select Date');
+            //     return false;
+            // }
             $.ajax({
                 url: "{{route('app.pilot.leave.checkValidLeave')}}",
                 type: "POST",
@@ -177,6 +181,7 @@
                 data: {
                     leave_dates: leave_dates,
                     user_id: user_id,
+                    no_of_days,
                     _token: '{{csrf_token()}}'
                 },
                 success: function(response) {

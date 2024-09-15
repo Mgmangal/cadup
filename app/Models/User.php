@@ -170,4 +170,11 @@ class User extends Authenticatable
         return !empty($value)?date('d-m-Y', strtotime($value)):'';
     }
 
+    public function certificates()
+    {
+        return $this->belongsToMany(Master::class, 'user_certificates', 'user_id', 'master_id')
+                    ->withPivot('certificate_type', 'is_lifetime','is_mandatory','id_current_for_flying')
+                    ->withTimestamps();
+    }
+
 }

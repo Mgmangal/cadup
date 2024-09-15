@@ -10,7 +10,7 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between">
         <h3 class="card-title">Licence Log List</h3>
-        <!-- <a href="{{route('app.flying-details.create')}}" class="btn btn-primary btn-sm p-2">Add New</a> -->
+        <a href="javascript:history.go(-1)" class="btn btn-primary btn-sm p-2">Back</a>
     </div>
     <div class="card-body">
 
@@ -46,7 +46,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="viewModalBody">
-                
+
             </div>
         </div>
     </div>

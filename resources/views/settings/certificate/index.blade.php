@@ -19,9 +19,9 @@
         <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Certificates List </h3>
             <div>
-                @can('Certificate Add')
+                 
                 <a href="javascript:void(0);" class="btn btn-primary btn-sm p-2" onclick="addNew();">Add New</a>
-                @endcan
+                
             </div>
         </div>
         <div class="card-body">
@@ -33,7 +33,6 @@
                             <th>Short Name</th>
                             <th>Name</th>
                             <th>Type</th>
-                            <th>Valid</th>
                             <th>Created On</th>
                             <th>Action</th>
                         </tr>
@@ -67,7 +66,9 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label" for="sub_type">Type</label>
-                            <select name="sub_type" id="sub_type" class="form-control">
+                            <select name="sub_type" id="sub_type" class="form-control" required>
+                                <option value="">Select</option>
+                                <option value="authorisation">Authorisation</option>
                                 <option value="license">License</option>
                                 <option value="training">Training</option>
                                 <option value="medical">Medical</option>
@@ -75,10 +76,10 @@
                                 <option value="ground_training">Ground Training</option>
                             </select>
                         </div>
-                        <div class="mb-3 form-check">
+                        <!-- <div class="mb-3 form-check">
                             <label class="form-label" for="is_valid">Is Valid Life Time</label>
                             <input type="checkbox" class="form-check-input" name="is_valid" id="is_valid" value="lifetime"/>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -140,7 +141,6 @@
             }
             dataList();
 
-
             function addNew() {
                 $('#roleForm').find('.is-invalid').removeClass('is-invalid');
                 $('#roleForm').find('.invalid-feedback').hide();
@@ -148,6 +148,7 @@
                 $('#roleForm')[0].reset();
                 $('#manageModal').modal('show')
             }
+
             $('#roleForm').submit(function(e) {
                 e.preventDefault();
                 $('#roleForm').find('.invalid-feedback').hide();
@@ -183,7 +184,7 @@
                             $('#roleForm').find('[name=name]').val(response.data.name);
                             $('#roleForm').find('[name=short_name]').val(response.data.other_data);
                             $('#roleForm').find('[name=edit_id]').val(response.data.id);
-                            $('#roleForm').find('[name=is_valid]').attr('checked',(response.data.more_data=='lifetime'?true:false));
+                            //$('#roleForm').find('[name=is_valid]').attr('checked',(response.data.more_data=='lifetime'?true:false));
                             $('#manageModal').modal('show');
                         }
                     }

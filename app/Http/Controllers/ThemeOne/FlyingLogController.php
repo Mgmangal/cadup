@@ -16,7 +16,6 @@ use App\Models\PilotViolation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\FlightDocAssign;
-use App\Models\PilotLog;
 use Carbon\Carbon;
 class FlyingLogController extends Controller
 {
@@ -125,13 +124,8 @@ class FlyingLogController extends Controller
             $action  ='';
             if($value->is_process=='no')
             {
-                if(getUserType()=='user')
-                {
-                    $action  .='<a href="'.route('user.flying.verify',encrypter('encrypt', $value->id)).'" class="btn btn-warning btn-sm m-1">Verify</a>';
-                }else{
-                    $action  .= '<a href="'.route('app.flying-details.edit', $value->id).'" class="btn btn-warning btn-sm m-1">Edit</a>';
-                    $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.flying-details.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-                }
+                $action  .='<a href="'.route('user.flying.verify',encrypter('encrypt', $value->id)).'" class="btn btn-warning btn-sm m-1">Verify</a>';
+               
             }else{
                 $action  .='<a href="javascript:void(0);" class="btn btn-success btn-sm m-1">Verified</a>';
             }
@@ -314,12 +308,8 @@ class FlyingLogController extends Controller
         $pilots = User::where('designation', '1')->where('status', 'active')->get();
         $aircrafts = AirCraft::where('status', 'active')->get();
         $flying_types =Master::where('type', 'flying_type')->where('status', 'active')->get();// array( '1' => 'Agriculture minister', '2' => 'Cabinet Minister', '3' => 'CM', '4' => 'CS', '5' => 'DGP', '6' => 'Dy. CM', '7' => 'Governor', '8' => 'Positioning', '9' => 'PPC', '10' => 'RTB', '11' => 'Speaker UP', '12' => 'VIP', '13' => 'VVIP', '14' => 'Home Secretary', '15' => 'Personal Secretary Home', '16' => 'AG', '17' => 'Maintenance', '18' => 'ADG', '19' => 'Standard Check', '20' => 'Civil aviation minister', '21' => 'Special Duty', '22' => 'Other', '23' => 'Water Resources Minister', '24' => 'State Minister', '25' => 'NA', '26' => 'Irrigation Minister', '27' => 'PWD', '28' => 'Local Flying', '29' => 'State election commissioner', '30' => 'Chief election commissioner', '31' => 'DM', '32' => 'APC', '33' => 'Director Aviation', '34' => 'Route Check', '35' => 'Check Flight', '36' => 'Flower Dropping', '37' => 'Central Minister', '38' => 'Forest Minister', '39' => 'Principal Secretary irrigation', '40' => 'Secretary', '41' => 'Assembly Speaker', '42' => 'Health Minister', '43' => 'Power minister', '44' => 'Nager Vikas Minister', '45' => 'Election Commissioner', '46' => 'Urban Minister', '47' => 'Ground Run', '48' => 'Instant Release Check', '49' => 'Sports minister' );
-        if(getUserType()=='user')
-        {
-            return view('theme-one.flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
-        }else{
-            return view('flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
-        }
+        return view('theme-one.flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
+       
     }
 
     public function statisticsPrint($from_date='',$to_date='',$aircraft='',$flying_type='')
@@ -342,7 +332,7 @@ class FlyingLogController extends Controller
         $data['to'] = $to;
         $data['flyingType'] = $flying_type;
         $data['aircrafts'] = $aircrafts;
-        return view('flying_logs.print-statistics', $data)->render();
+        return view('theme-one.flying_logs.print-statistics', $data)->render();
     }
 
     public function processFlyingLog()
@@ -351,7 +341,7 @@ class FlyingLogController extends Controller
         $aircrafts = AirCraft::where('status', 'active')->get();
         $flying_types = Master::where('type', 'flying_type')->where('status', 'active')->get();
         $pilot_roles = Master::where('type', 'pilot_role')->where('status', 'active')->get();
-        return view('flying_logs.process-flying-log', compact('pilots', 'aircrafts','flying_types','pilot_roles'));
+        return view('theme-one.flying_logs.process-flying-log', compact('pilots', 'aircrafts','flying_types','pilot_roles'));
     }
 
     public function processSave(Request $request)
@@ -1466,7 +1456,7 @@ class FlyingLogController extends Controller
         $flying_types = Master::where('type', 'flying_type')->where('status', 'active')->get();
         $pilot_roles = Master::where('type', 'pilot_role')->where('status', 'active')->get();
         $passengers = Master::where('type', 'passenger')->where('status', 'active')->get();
-        return view('flying_logs.receive-flight-doc', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
+        return view('theme-one.flying_logs.receive-flight-doc', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
     }
 
     public function receiveFlightDocAdd()
@@ -1478,7 +1468,7 @@ class FlyingLogController extends Controller
         $post_flight_doc = Master::where('type', 'post_flight_doc')->where('status', 'active')->get();
         $passengers = Master::where('type', 'passenger')->where('status', 'active')->get();
         $last_data=FlightDocAssign::latest()->first();
-        return view('flying_logs.receive-flight-doc-manage', compact('pilots','passengers','last_data', 'aircrafts','flying_types','pilot_roles','post_flight_doc'));
+        return view('theme-one.flying_logs.receive-flight-doc-manage', compact('pilots','passengers','last_data', 'aircrafts','flying_types','pilot_roles','post_flight_doc'));
     }
 
     public function receiveFlightDocStore(Request $request)
@@ -1545,7 +1535,7 @@ class FlyingLogController extends Controller
         $post_flight_doc = Master::where('type', 'post_flight_doc')->where('status', 'active')->get();
         $passengers = Master::where('type', 'passenger')->where('status', 'active')->get();
         $data=FlightDocAssign::find($id);
-        return view('flying_logs.receive-flight-doc-manage', compact('pilots','passengers','data','aircrafts','flying_types','pilot_roles','post_flight_doc'));
+        return view('theme-one.flying_logs.receive-flight-doc-manage', compact('pilots','passengers','data','aircrafts','flying_types','pilot_roles','post_flight_doc'));
     }
 
     public function receiveFlightDocList(Request $request)
@@ -1664,7 +1654,7 @@ class FlyingLogController extends Controller
         $data['to'] = $to_date;
         $data['users'] = $users->get();
         // return $data['users'];
-        return view('flying_logs.receive-flight-doc-print', $data);
+        return view('theme-one.flying_logs.receive-flight-doc-print', $data);
     }
     public function openFlightDetailModel(Request $request)
     {
@@ -1806,7 +1796,7 @@ class FlyingLogController extends Controller
         $flying_types = Master::where('type', 'flying_type')->where('status', 'active')->get();
         $pilot_roles = Master::where('type', 'pilot_role')->where('status', 'active')->get();
         $passengers = Master::where('type', 'passenger')->where('status', 'active')->get();
-        return view('flying_logs.lkohe-vilk-lko', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
+        return view('theme-one.flying_logs.lkohe-vilk-lko', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
     }
 
     public function lkoheVilkLkoList(Request $request)
@@ -1914,8 +1904,8 @@ class FlyingLogController extends Controller
             $action  ='';
             if($value->is_process=='no')
             {
-                $action  .= '<a href="' . route('app.flying-details.edit', $value->id) . '" class="btn btn-warning btn-sm m-1">Edit</a>';
-                $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.flying-details.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+                $action  .= '<a href="' . route('user.flying-details.edit', $value->id) . '" class="btn btn-warning btn-sm m-1">Edit</a>';
+                $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('user.flying-details.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
             }else{
                 $action  .='<a href="javascipt:void(0);" class="btn btn-success btn-sm m-1">Processed</a>';
             }

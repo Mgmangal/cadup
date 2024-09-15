@@ -63,8 +63,8 @@
                             </select>
                         </div>
                     </div>
-                    
-                    
+
+
                 </div>
                 <div class="row m-3">
                     <div class="col-md-3">
@@ -203,7 +203,7 @@
                         </div>
                     </div>
                 </div>
-                
+
 
                 <div class="row m-3 text-center">
                     <div class="col-md-12 ">
@@ -236,10 +236,10 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
-                    // $(".datestime").datetimepicker({ defaultDate:ct});   
+                    // $(".datestime").datetimepicker({ defaultDate:ct});
                     // $(".datestime").val('');
                 }
             });
@@ -270,12 +270,12 @@
                     let arrival_date = $(e).closest('.row').find('.a_date').val();
                     let arrival_time = $(e).closest('.row').find('.a_time').val();
                     if (departure_time != '' && arrival_time != ''&& departure_date!='' && arrival_date!='') {
-                       
+
                         // console.log(departure_date+' '+departure_time);
                         // console.log(arrival_date+' '+arrival_time);
                         let depa = setDateTime(departure_date+' '+departure_time);
                         let darr = setDateTime(arrival_date+' '+arrival_time);
-                        
+
                         if (depa >= darr) {
                             $(e).closest('.row').find('.a_time').val('');
                             warning('Arrival time should be more than departure time');
@@ -285,11 +285,11 @@
                         $(e).closest('.row').find('.arrival_time').val(arrival_date+' '+arrival_time);
                         let block_time = getTimeDefrence(toJSDate(departure_date+' '+departure_time), toJSDate(arrival_date+' '+arrival_time));;
                         $(e).closest('.row').find('.block_time').val(block_time);
-                        totalBlockTime(); 
+                        totalBlockTime();
                     }
                 }, 1000);
             }
-            
+
             function checkDateTime()
             {
                 var departure_date_time='';
@@ -301,7 +301,7 @@
                         departure_date_time=setDateTime($(this).val()+' '+$(this).next().val());
                     }else{
                         arrival_date_time=setDateTime($(this).val()+' '+$(this).next().val());
-                        if (departure_date_time >= arrival_date_time) {
+                        if (departure_date_time > arrival_date_time) {
                             $(this).next().val('');
                             warning('Please enter valid time');
                             return false;
@@ -310,7 +310,7 @@
                     }
                 });
             }
-            
+
             function totalBlockTime() {
                 var t1 = "00:00";
                 var mins = 0;
@@ -356,7 +356,7 @@
                 var formatted = ((HH < 10) ? ("0" + HH) : HH) + ":" + ((MM < 10) ? ("0" + MM) : MM);
                 return formatted;
             }
-            
+
             $('#manageForm').submit(function(e) {
                 e.preventDefault();
                 $('#manageForm').find('.invalid-feedback').hide();
@@ -394,7 +394,7 @@
                 });
                 return valid;
             }
-            
+
             function changeHandlerPilotOne(e) {
                 $(e).parent().parent().parent().find('.pilot2_id option[disabled]').attr('disabled', false); //reset all the disabled options on every change event
                 console.log($(e).parent().parent().parent().find('.pilot2_id'));
@@ -428,14 +428,14 @@
                     return this.value === val;
                 }).prop('disabled', true);
             }
-            
+
             function autoCompleteInput()
             {
                 $( ".auto_complete_input" ).autocomplete({
                   source: jQuery.parseJSON( localStorage.getItem('htmltest'))
                 });
             }
-          
+
             autoCompleteInput();
 
             function getSectors()

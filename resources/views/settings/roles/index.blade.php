@@ -19,9 +19,9 @@
         <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Role List @if(!empty($role)) - {{$role->name}} @endif</h3>
             <div>
-                @can('Role Add')
+                
                 <a href="javascript:void(0);" class="btn btn-primary btn-sm p-2" onclick="addRole();">Add Role</a>
-                @endcan
+               
                 @if(!empty($parentId))
                 <a href="{{url()->previous()}}" class="btn btn-info btn-sm p-2">Back</a>
                 @endif

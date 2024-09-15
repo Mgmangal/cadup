@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\FlightDocAssign;
 use App\Models\PilotLog;
-use Carbon\Carbon;
+use Carbon\Carbon; 
 class FlyingLogController extends Controller
 {
     public function index()
@@ -26,13 +26,7 @@ class FlyingLogController extends Controller
         $pilot_roles = Master::where('type', 'pilot_role')->where('status', 'active')->get();
         $passengers = Master::where('type', 'passenger')->where('status', 'active')->get();
         $pilot_role = Master::where('type', 'pilot_role')->where('status', 'active')->get();
-        if(getUserType()=='admin')
-        {
-            return view('flying_logs.index', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
-        }else{
-            return view('theme-one.flying_logs.index', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers','pilot_role'));
-
-        }
+        return view('flying_logs.index', compact('pilots', 'aircrafts','flying_types','pilot_roles','passengers'));
 
     }
 
@@ -84,7 +78,7 @@ class FlyingLogController extends Controller
                 'to_sector' => $to_sector[$key],
                 'flying_type' => $flying_type[$key],
                 'comment' => $comment[$key],
-                'passenger' => $passenger[$key],
+                'passenger' => 0,
                 'departure_time' => is_set_date_time_format($departure_time[$key]),
                 'arrival_time' => is_set_date_time_format($arrival_time[$key]),
                 'night_time' => !empty($night_time[$key])?$night_time[$key]:null,
@@ -136,7 +130,6 @@ class FlyingLogController extends Controller
             'to_sector' => $request->to_sector,
             'flying_type' => $request->flying_type,
             'comment' => $request->comment,
-            'passenger' => $request->passenger,
             'departure_time' => is_set_date_time_format($request->departure_time),
             'arrival_time' => is_set_date_time_format($request->arrival_time),
             'night_time' => !empty($night_time)?$night_time:null,
@@ -245,12 +238,6 @@ class FlyingLogController extends Controller
             }else{
                 $action  .='<a href="javascript:void(0);" class="btn btn-success btn-sm m-1">Verified</a>';
             }
-            $aai_report_exist = AaiReport::where('flying_log_id', $value->id)->first();
-            if($aai_report_exist){
-                $action  .= '<a href="javascript:void(0);" class="btn btn-success btn-sm m-1">Generated</a>';
-            } else {
-                $action  .='<a href="'.route('app.flying.generateAaiReport', $value->id).'" class="btn btn-warning btn-sm m-1 text-white">Generate AAI Report</a>';
-            }
 
             $times[] = is_time_defrence($value->departure_time, $value->arrival_time);
             $sub_array = array();
@@ -258,10 +245,10 @@ class FlyingLogController extends Controller
             $sub_array[] = is_get_date_format($value->date);
             $sub_array[] = @$value->aircraft->call_sign;
             $sub_array[] = $value->fron_sector.' /<br>'.$value->to_sector;
-            $sub_array[] = date('H:i',strtotime($value->departure_time)).' / '. date('H:i',strtotime($value->arrival_time));
+            $sub_array[] = is_set_time_format($value->departure_time).' / '.is_set_time_format($value->arrival_time);//date('H:i',strtotime($value->departure_time)).' / '. date('H:i',strtotime($value->arrival_time));
             $sub_array[] = is_time_defrence($value->departure_time, $value->arrival_time);
-            $sub_array[] = @$value->pilot1->salutation . ' ' . @$value->pilot1->name.'-'.$this->getMasterName($value->pilot1_role,'pilot_role').' /<br>'.@$value->pilot2->salutation . ' ' . @$value->pilot2->name.'-'.$this->getMasterName($value->pilot2_role,'pilot_role');
-            $sub_array[] = $this->getMasterName($value->flying_type,'flying_type');
+            $sub_array[] = @$value->pilot1->salutation . ' ' . @$value->pilot1->name.'-'.getMasterName($value->pilot1_role,'pilot_role').' /<br>'.@$value->pilot2->salutation . ' ' . @$value->pilot2->name.'-'.getMasterName($value->pilot2_role,'pilot_role');
+            $sub_array[] = getMasterName($value->flying_type,'flying_type');
             // $sub_array[] = !empty($value->passenger)?implode(', ',$value->passenger):'';
             $sub_array[] =  $action;
             $data[] = $sub_array;
@@ -311,12 +298,7 @@ class FlyingLogController extends Controller
         $pilots = User::where('designation', '1')->where('status', 'active')->get();
         $aircrafts = AirCraft::where('status', 'active')->get();
         $flying_types =Master::where('type', 'flying_type')->where('status', 'active')->get();// array( '1' => 'Agriculture minister', '2' => 'Cabinet Minister', '3' => 'CM', '4' => 'CS', '5' => 'DGP', '6' => 'Dy. CM', '7' => 'Governor', '8' => 'Positioning', '9' => 'PPC', '10' => 'RTB', '11' => 'Speaker UP', '12' => 'VIP', '13' => 'VVIP', '14' => 'Home Secretary', '15' => 'Personal Secretary Home', '16' => 'AG', '17' => 'Maintenance', '18' => 'ADG', '19' => 'Standard Check', '20' => 'Civil aviation minister', '21' => 'Special Duty', '22' => 'Other', '23' => 'Water Resources Minister', '24' => 'State Minister', '25' => 'NA', '26' => 'Irrigation Minister', '27' => 'PWD', '28' => 'Local Flying', '29' => 'State election commissioner', '30' => 'Chief election commissioner', '31' => 'DM', '32' => 'APC', '33' => 'Director Aviation', '34' => 'Route Check', '35' => 'Check Flight', '36' => 'Flower Dropping', '37' => 'Central Minister', '38' => 'Forest Minister', '39' => 'Principal Secretary irrigation', '40' => 'Secretary', '41' => 'Assembly Speaker', '42' => 'Health Minister', '43' => 'Power minister', '44' => 'Nager Vikas Minister', '45' => 'Election Commissioner', '46' => 'Urban Minister', '47' => 'Ground Run', '48' => 'Instant Release Check', '49' => 'Sports minister' );
-        if(getUserType()=='user')
-        {
-            return view('theme-one.flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
-        }else{
-            return view('flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
-        }
+        return view('flying_logs.statistics', compact('pilots', 'aircrafts','flying_types'));
     }
 
     public function statisticsPrint($from_date='',$to_date='',$aircraft='',$flying_type='')
@@ -1508,23 +1490,29 @@ class FlyingLogController extends Controller
         $data->day_officers=$day_officers;
         $data->remark=$remark;
         $documents=[];
-        foreach($doc_id as $docid)
+        if(!empty($doc_id))
         {
-            if(!empty($document[$docid]))
+            foreach($doc_id as $docid)
             {
-                $file=$document[$docid];
-                $name = time().rand(1,100).'.'.$file->extension();
-                $file->move(public_path('uploads/flight_doc'), $name);
-                $documents[$docid]=$name;
-            }else{
-                if(!empty($document_dc[$docid]))
+                if(!empty($document[$docid]))
                 {
-                    $documents[$docid]=$document_dc[$docid];
+                    $file=$document[$docid];
+                    $name = time().rand(1,100).'.'.$file->extension();
+                    $file->move(public_path('uploads/flight_doc'), $name);
+                    $documents[$docid]=$name;
+                }else{
+                    if(!empty($document_dc[$docid]))
+                    {
+                        $documents[$docid]=$document_dc[$docid];
+                    }else{
+                        $documents[$docid]='';
+                    }
                 }
+                $data->documents=$documents;
             }
         }
         //print_r($documents);die;
-        $data->documents=$documents;
+
         $data->save();
 
         return response()->json([
@@ -1656,7 +1644,7 @@ class FlyingLogController extends Controller
                 $q->whereBetween('dates', [date('Y-m-d',strtotime($from_date)), date('Y-m-d',strtotime($to_date))]);
             });
         }
-        $users->orderBy('id', 'asc');
+        $users->orderBy('dates', 'DESC');
         $data['from'] = $from_date;
         $data['to'] = $to_date;
         $data['users'] = $users->get();
@@ -1669,48 +1657,63 @@ class FlyingLogController extends Controller
         $id = $request->id;
         $type = $request->type;
         $row = FlightDocAssign::where('id', $id)->first();
-        $logs = FlyingLog::whereIn('id', array_unique($row->flying_logs))->with('aircraft')->get();
-        $html = '';
         if ($type == 'Flying') {
             $title = 'Flying Details';
-            $html .= '<table class="table table-bordered">';
-            $html .= '<thead>';
-            $html .= '<tr>';
-            $html .= '<th>Date</th>';
-            $html .= '<th>Aircraft</th>';
-            $html .= '<th>Sector From/To</th>';
-            $html .= '<th>Pilots</th>';
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-            foreach ($logs as $value) {
-                $html .= '<tr>';
-                $html .= '<td>' . is_get_date_format($value->dates) . '</td>';
-                $html .= '<td>' . $value->aircraft->call_sign . '</td>';
-                $html .= '<td>' . $value->fron_sector . ' / ' . $value->to_sector . '</td>';
-                $html .= '<td>' . $value->pilot1->name . ' / ' . $value->pilot2->name . '</td>';
-                $html .= '</tr>';
-            }
-            $html .= '</tbody>';
-            $html .= '</table>';
-        } elseif ($type == 'Docs') {
+        }else{
             $title = 'Doc Details';
-            $html .= '<table class="table table-bordered">';
-            $html .= '<thead>';
-            $html .= '<tr>';
-            $html .= '<th>Doc Name</th>';
-            $html .= '<th>View</th>';
-            $html .= '</tr>';
-            $html .= '</thead>';
-            $html .= '<tbody>';
-            foreach ($row->documents as $id => $file) {
+        }
+        $html = '';
+        if(!empty($row->flying_logs))
+        {
+            $logs = FlyingLog::whereIn('id', array_unique($row->flying_logs))->with('aircraft')->get();
+
+            if ($type == 'Flying') {
+
+                $html .= '<table class="table table-bordered">';
+                $html .= '<thead>';
                 $html .= '<tr>';
-                $html .= '<td>' . getMasterName($id) . '</td>';
-                $html .= '<td><a href="' . asset('/uploads/flight_doc/' . $file) . '" target="_blank"><i class="fa fa-eye"></i></a></td>';
+                $html .= '<th>Date</th>';
+                $html .= '<th>Aircraft</th>';
+                $html .= '<th>Sector From/To</th>';
+                $html .= '<th>Pilots</th>';
                 $html .= '</tr>';
+                $html .= '</thead>';
+                $html .= '<tbody>';
+                if(!empty($logs))
+                {
+                    foreach ($logs as $value) {
+                        $html .= '<tr>';
+                        $html .= '<td>' . is_get_date_format($value->dates) . '</td>';
+                        $html .= '<td>' . $value->aircraft->call_sign . '</td>';
+                        $html .= '<td>' . $value->fron_sector . ' / ' . $value->to_sector . '</td>';
+                        $html .= '<td>' . $value->pilot1->name . ' / ' . $value->pilot2->name . '</td>';
+                        $html .= '</tr>';
+                    }
+                }
+                $html .= '</tbody>';
+                $html .= '</table>';
+            } elseif ($type == 'Docs') {
+
+                $html .= '<table class="table table-bordered">';
+                $html .= '<thead>';
+                $html .= '<tr>';
+                $html .= '<th>Doc Name</th>';
+                $html .= '<th>View</th>';
+                $html .= '</tr>';
+                $html .= '</thead>';
+                $html .= '<tbody>';
+                if(!empty($row->documents))
+                {
+                    foreach ($row->documents as $id => $file) {
+                        $html .= '<tr>';
+                        $html .= '<td>' . getMasterName($id) . '</td>';
+                        $html .= '<td> '.(!empty($file)?'<a href="' . asset('/uploads/flight_doc/' . $file) . '" target="_blank"><i class="fa fa-eye"></i></a>':'').'</td>';
+                        $html .= '</tr>';
+                    }
+                }
+                $html .= '</tbody>';
+                $html .= '</table>';
             }
-            $html .= '</tbody>';
-            $html .= '</table>';
         }
         return response()->json(['success' => true, 'html' => $html, 'title' => $title]);
     }
@@ -1923,7 +1926,7 @@ class FlyingLogController extends Controller
             $sub_array[] = is_get_date_format($value->date);
             $sub_array[] = @$value->aircraft->call_sign;
             $sub_array[] = $value->fron_sector.' /<br>'.$value->to_sector;
-            $sub_array[] = date('H:i',strtotime($value->departure_time)).' /<br>'. date('H:i',strtotime($value->arrival_time));
+            $sub_array[] = is_set_time_format($value->departure_time).' / '.is_set_time_format($value->arrival_time);//date('H:i',strtotime($value->departure_time)).' /<br>'. date('H:i',strtotime($value->arrival_time));
             $sub_array[] = is_time_defrence($value->departure_time, $value->arrival_time);
             $sub_array[] = @$value->pilot1->salutation . ' ' . @$value->pilot1->name.'-'.$this->getMasterName($value->pilot1_role,'pilot_role').' /<br>'.@$value->pilot2->salutation . ' ' . @$value->pilot2->name.'-'.$this->getMasterName($value->pilot2_role,'pilot_role');
             $sub_array[] = $this->getMasterName($value->flying_type,'flying_type');
@@ -2029,7 +2032,7 @@ class FlyingLogController extends Controller
             $sub_array[] = is_get_date_format($value->date);
             $sub_array[] = @$value->aircraft->call_sign;
             $sub_array[] = $value->fron_sector.' /<br>'.$value->to_sector;
-            $sub_array[] = date('H:i',strtotime($value->departure_time)).' /'. date('H:i',strtotime($value->arrival_time));
+            $sub_array[] = is_set_time_format($value->departure_time).' / '.is_set_time_format($value->arrival_time);//date('H:i',strtotime($value->departure_time)).' /'. date('H:i',strtotime($value->arrival_time));
             $sub_array[] = is_time_defrence($value->departure_time, $value->arrival_time);
             $sub_array[] = $this->getMasterName($value->user_role,'pilot_role');
             $sub_array[] = $this->getMasterName($value->flying_type,'flying_type');
@@ -2091,156 +2094,5 @@ class FlyingLogController extends Controller
         }
         return redirect()->back()->with('success', 'Log Verified Successfully');
     }
-    public function generateAaiReport($id)
-    {
-        $data = FlyingLog::with('aircraft')->find($id);
-        // return $data;
-        return view('flying_logs.generate-aai-report', compact('data'));
-    }
-    public function aaiReportStore(Request $request)
-    {
-        $model = new AaiReport();
-        $model->flying_log_id = $request->flying_log_id;
-        $model->d_i_ind = $request->d_i_ind;
-        $model->rcs_ind = $request->rcs_ind;
-        $model->booking_date = $request->booking_date;
-        $model->modification_date = $request->modification_date;
-        $model->original_pnr = $request->original_pnr;
-        $model->parent_pnr = $request->parent_pnr;
-        $model->tail_number = $request->tail_number;
-        $model->departure_date = $request->departure_date;
-        $model->departure_date_utc = $request->departure_date_utc;
-        $model->departure_date_local = $request->departure_date_local;
-        $model->flight_number = $request->flight_number;
-        $model->pnr_actual_departure_station = $request->pnr_actual_departure_station;
-        $model->departure_station = $request->departure_station;
-        $model->arrival_station = $request->arrival_station;
-        $model->final_station = $request->final_station;
-        $model->nationality = $request->nationality;
-        $model->carrier_code = $request->carrier_code;
-        $model->total_pax = $request->total_pax;
-        $model->adult_count = $request->adult_count;
-        $model->child_count = $request->child_count;
-        $model->infant_count = $request->infant_count;
-        $model->sky_marshall_count = $request->sky_marshall_count;
-        $model->embarkation_connection_status = $request->embarkation_connection_status;
-        $model->disembarkation_connection_status = $request->disembarkation_connection_status;
-        $model->flight_status = $request->flight_status;
-        $model->pnr_status = $request->pnr_status;
-        $model->save();
-        return response()->json(['success' => true, 'message' => 'AAI Report Generated Successfully']);
-    }
-    public function aaiReports()
-    {
-        return view('flying_logs.aai-reports');
-    }
 
-    // public function aaiReportEdit($id)
-    // {
-    //     $data = AaiReport::find($id);
-    //     return view('flying_logs.aai-report-edit', compact('data'));
-    // }
-
-    public function aaiReportsList(Request $request)
-    {
-        $column = ['id', 'd_i_ind', 'rcs_ind','booking_date', 'modification_date', 'original_pnr', 'parent_pnr','tail_number', 'departure_date', 'departure_date_utc', 'departure_date_local', 'flight_number','pnr_actual_departure_station', 'departure_station', 'arrival_station', 'final_station','nationality', 'carrier_code','total_pax', 'adult_count', 'child_count', 'infant_count', 'sky_marshall_count','embarkation_connection_status', 'disembarkation_connection_status', 'flight_status', 'pnr_status','id'];
-        $users = AaiReport::where('id', '>', '0');
-
-        $total_row = $users->get()->count();
-
-        if (!empty($_POST['from_date']) && empty($_POST['to_date'])) {
-            $from = $_POST['from_date'];
-            $users->whereRaw('DATE(departure_date) >= ?', [date('Y-m-d', strtotime($from))]);
-        }
-
-        if (empty($_POST['from_date']) && !empty($_POST['to_date'])) {
-            $to = $_POST['to_date'];
-            $users->whereRaw('DATE(departure_date) <= ?', [date('Y-m-d', strtotime($to))]);
-        }
-
-        if (!empty($_POST['from_date']) && !empty($_POST['to_date'])) {
-            $from = $_POST['from_date'];
-            $to = $_POST['to_date'];
-            $users->where(function($q) use ($from, $to) {
-                $q->whereBetween(DB::raw('DATE(departure_date)'), [
-                    date('Y-m-d', strtotime($from)),
-                    date('Y-m-d', strtotime($to))
-                ]);
-            });
-        }
-
-        if(!empty($_POST['from_sector']))
-        {
-          $users->where('departure_station',$_POST['from_sector']);
-        }
-        if (isset($_POST['search'])&&!empty($_POST['search']['value'])) {
-            $users->where('departure_date', 'LIKE', '%' . $_POST['search']['value'] . '%');
-            $users->orWhere('departure_station', 'LIKE', '%' . $_POST['search']['value'] . '%');
-        }
-        if (isset($_POST['order'])) {
-            $users->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
-        } else {
-            $users->orderBy('id', 'desc');
-        }
-        $filter_row = $users->get()->count();
-        if (isset($_POST["length"]) && $_POST["length"] != -1) {
-            $users->skip($_POST["start"])->take($_POST["length"]);
-        }
-        $result = $users->get();
-
-        $data = array();
-        $times = array();
-        foreach ($result as $key => $value) {
-            // $action = '<a href="'.route('app.flying.aaiReportEdit', $value->id).'" class="btn btn-primary btn-sm m-1">Edit</a>';
-            $action = '<a href="javascript:void(0);" onclick="deleted(`' . route('app.flying.aaiReportDestroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-
-            $sub_array = array();
-            $sub_array[] = ++$key;
-            // $sub_array[] = $value->flying_log_id;
-            $sub_array[] = $value->d_i_ind;
-            $sub_array[] = $value->rcs_ind;
-            $sub_array[] = $value->booking_date ? is_get_date_time_format($value->booking_date) : '';
-            $sub_array[] = is_get_date_time_format($value->modification_date);
-            $sub_array[] = $value->original_pnr;
-            $sub_array[] = $value->parent_pnr;
-            $sub_array[] = $value->tail_number;
-            $sub_array[] = $value->departure_date ? is_get_date_time_format($value->departure_date) : '';
-            $sub_array[] = $value->departure_date_utc ? is_get_date_time_format($value->departure_date_utc) : '';
-            $sub_array[] = $value->departure_date_local ? is_get_date_time_format($value->departure_date_local) : '';
-            $sub_array[] = $value->flight_number;
-            $sub_array[] = $value->pnr_actual_departure_station;
-            $sub_array[] = $value->departure_station;
-            $sub_array[] = $value->arrival_station;
-            $sub_array[] = $value->final_station;
-            $sub_array[] = $value->nationality;
-            $sub_array[] = $value->carrier_code;
-            $sub_array[] = $value->total_pax;
-            $sub_array[] = $value->adult_count;
-            $sub_array[] = $value->child_count;
-            $sub_array[] = $value->infant_count;
-            $sub_array[] = $value->sky_marshall_count;
-            $sub_array[] = $value->embarkation_connection_status;
-            $sub_array[] = $value->disembarkation_connection_status;
-            $sub_array[] = $value->flight_status;
-            $sub_array[] = $value->pnr_status;
-            $sub_array[] =  $action;
-            $data[] = $sub_array;
-        }
-        $totalTime = AddPlayTime($times);
-        $output = array(
-            "draw"       =>  intval($_POST["draw"]),
-            "recordsTotal"   =>  $total_row,
-            "recordsFiltered"  =>  $filter_row,
-            "data"       =>  $data,
-            "totalTime"       =>  $totalTime,
-        );
-
-        echo json_encode($output);
-    }
-    public function aaiReportDestroy($id)
-    {
-        $data = AaiReport::find($id);
-        $data->delete();
-        return response()->json(['success' => true, 'message' => 'Data Deleted successfully.']);
-    }
 }

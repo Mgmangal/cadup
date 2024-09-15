@@ -10,7 +10,7 @@ class SectionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Section Add|Section Edit|Section Delete|Section View']);
+        //$this->middleware(['permission:Section Add|Section Edit|Section Delete|Section View']);
     }
     public function index()
     {
@@ -81,13 +81,12 @@ class SectionController extends Controller
         foreach ($result as $key => $value) {
 
             $action = '';
-            if (auth()->user()->can('Section Edit')) {
-                $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.jobfunctions.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-                $action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
-            }
-            if (auth()->user()->can('Section Delete')) {
-                $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.jobfunctions.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            }
+            
+            $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.jobfunctions.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+            $action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
+        
+            $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.jobfunctions.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+            
 
             $sub_array = array();
             $sub_array[] = ++$key;

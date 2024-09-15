@@ -34,7 +34,17 @@
                 <th colspan="8"><h4> Post Flight Document Report</h4></th>
             </tr>
             <tr rowspan="2">
-                <th colspan="8"><h5>{{ date('d/m/Y', strtotime($from)) }} to {{ date('d/m/Y', strtotime($to)) }}</h5></th>
+                <th colspan="8"><h5>
+                @if($from!='NA'&&$to!='NA')
+                    {{ date('d/m/Y', strtotime($from))}} to {{ date('d/m/Y', strtotime($to))}}
+                @elseif($from!='NA'&&$to=='NA')
+                    {{ date('d/m/Y', strtotime($from))}} to {{ date('d/m/Y', strtotime($users[count($users)-1]->dates))}}
+                @elseif($from=='NA'&&$to!='NA')
+                    {{ date('d/m/Y',strtotime($users[0]->dates))}} to {{ date('d/m/Y', strtotime($to))}}
+                @else
+                    {{ date('d/m/Y',strtotime($users[0]->dates))}} to {{ date('d/m/Y', strtotime($users[count($users)-1]->dates))}}
+                @endif
+                </h5></th>
             </tr>
             <tr>
                 <th>Bunch Number</th>

@@ -40,7 +40,7 @@ class ExternalFlyingLogController extends Controller
         if ($validation->fails()) {
             return response()->json(['success' => false, 'message' => $validation->errors()]);
         }
-       
+
         $date = $request->date;
         $aircraft_id = $request->aircraft_id;
         $aircraft_type = $request->aircraft_type;
@@ -54,7 +54,7 @@ class ExternalFlyingLogController extends Controller
         $departure_time =$request->departure_time;
         $arrival_time =$request->arrival_time;
         $night_time = $request->night_time;
-        
+
         foreach ($fron_sector as $key => $fron_sector) {
             ExternalFlyingLog::create([
                 'date' => is_set_date_format($date),
@@ -137,23 +137,23 @@ class ExternalFlyingLogController extends Controller
         $data=Master::where('id',$id)->where('type',$type)->first();
         return !empty($data)?$data->name:'';
     }
-    
+
     public function list(Request $request)
     {
         $column = ['id', 'pilot1_id', 'date', 'aircraft_id', 'fron_sector', 'to_sector', 'id', 'pilot1_role', 'flying_type', 'id'];
         $users = ExternalFlyingLog::with(['pilot1'])->where('id', '>', '0');
 
         $total_row = $users->get()->count();
-        
+
         if(!empty($_POST['from_date'])&&empty($_POST['to_date']))
         {
             $from=$_POST['from_date'];
-            $users->where('date','>=',date('Y-m-d',strtotime($from))); 
+            $users->where('date','>=',date('Y-m-d',strtotime($from)));
         }
         if(empty($_POST['from_date'])&&!empty($_POST['to_date']))
         {
             $to=$_POST['to_date'];
-            $users->where('date','<=',date('Y-m-d',strtotime($to))); 
+            $users->where('date','<=',date('Y-m-d',strtotime($to)));
         }
         if(!empty($_POST['from_date'])&&!empty($_POST['to_date']))
         {
@@ -161,12 +161,13 @@ class ExternalFlyingLogController extends Controller
             $to=$_POST['to_date'];
             $users->where(function($q) use($from, $to){
                 $q->whereBetween('date', [date('Y-m-d',strtotime($from)), date('Y-m-d',strtotime($to))]);
-            }); 
+            });
         }
-        
-        if(!empty($_POST['aircraft_cateogry']))
+
+        if(!empty($_POST['aircraft']))
         {
-          $users->where('aircraft_cateogry',$_POST['aircraft_cateogry']);  
+            $aircrafts = AirCraft::where('aircraft_cateogry', $_POST['aircraft'])->pluck('aircraft_type');
+            $users->whereIn('aircraft_type',$aircrafts)->get();
         }
         if(!empty($_POST['pilot']))
         {
@@ -174,13 +175,13 @@ class ExternalFlyingLogController extends Controller
             $users->where(function($q) use($pilot){
                 $q->where('pilot1_id', $pilot);
                 // $q->orWhere('pilot2_id', $pilot);
-            }); 
+            });
         }
         if(!empty($_POST['flying_type']))
         {
-          $users->where('flying_type', $_POST['flying_type']);  
+          $users->where('flying_type', $_POST['flying_type']);
         }
-        
+
         if (isset($_POST['search'])&&!empty($_POST['search']['value'])) {
             $users->where('fron_sector', 'LIKE', '%' . $_POST['search']['value'] . '%');
         }
@@ -198,16 +199,16 @@ class ExternalFlyingLogController extends Controller
         foreach ($result as $key => $value) {
             $action  = '<a href="' . route('app.external.flying-details.edit', $value->id) . '" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.external.flying-details.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = is_get_date_format($value->date);
             $sub_array[] = @$value->aircraft_id;
             $sub_array[] = $value->fron_sector.' /<br>'.$value->to_sector;
-            $sub_array[] = date('H:i',strtotime($value->departure_time)).' /<br>'. date('H:i',strtotime($value->arrival_time));
+            $sub_array[] = is_set_time_format($value->departure_time).' / '.is_set_time_format($value->arrival_time);//date('H:i',strtotime($value->departure_time)).' /<br>'. date('H:i',strtotime($value->arrival_time));
             $sub_array[] = is_time_defrence($value->departure_time, $value->arrival_time);
-            $sub_array[] = @$value->pilot1->salutation . ' ' . @$value->pilot1->name.'-'.$this->getMasterName($value->pilot1_role,'pilot_role');
-            $sub_array[] = $this->getMasterName($value->flying_type,'flying_type');
+            $sub_array[] = @$value->pilot1->salutation . ' ' . @$value->pilot1->name.'-'.getMasterName($value->pilot1_role,'pilot_role');
+            $sub_array[] = getMasterName($value->flying_type,'flying_type');
             $sub_array[] =  $action;
             $data[] = $sub_array;
         }
@@ -220,7 +221,7 @@ class ExternalFlyingLogController extends Controller
 
         echo json_encode($output);
     }
-    
+
     function lastLocation(Request $request)
     {
         $aircroft_id=$request->aircroft_id;
@@ -231,10 +232,10 @@ class ExternalFlyingLogController extends Controller
         {
             $data= $rw->to_sector;
             $last_arrival_time= date('d-m-Y H:i',strtotime($rw->arrival_time));
-            
+
         }
         $aircaft=AirCraft::find($aircroft_id);
-        $html='<option value="">Select</option>'; 
+        $html='<option value="">Select</option>';
         if(!empty($aircaft)&&!empty($aircaft->pilots))
         {
             $pilots=$aircaft->pilots;
@@ -243,13 +244,13 @@ class ExternalFlyingLogController extends Controller
                 $user=User::findOrFail($pilot);
                 if($user->status=='active')
                 {
-                    $html.='<option value="'.$user->id.'">'.$user->name.'</option>'; 
+                    $html.='<option value="'.$user->id.'">'.$user->name.'</option>';
                 }
             }
         }
         return response()->json(['data' => $data,'pilots'=>$html,'last_arrival_time'=>$last_arrival_time]);
     }
-    
+
     public function statistics ()
     {
         $pilots = User::where('designation', '1')->where('status', 'active')->get();
@@ -257,14 +258,14 @@ class ExternalFlyingLogController extends Controller
         $flying_types = array( '1' => 'Agriculture minister', '2' => 'Cabinet Minister', '3' => 'CM', '4' => 'CS', '5' => 'DGP', '6' => 'Dy. CM', '7' => 'Governor', '8' => 'Positioning', '9' => 'PPC', '10' => 'RTB', '11' => 'Speaker UP', '12' => 'VIP', '13' => 'VVIP', '14' => 'Home Secretary', '15' => 'Personal Secretary Home', '16' => 'AG', '17' => 'Maintenance', '18' => 'ADG', '19' => 'Standard Check', '20' => 'Civil aviation minister', '21' => 'Special Duty', '22' => 'Other', '23' => 'Water Resources Minister', '24' => 'State Minister', '25' => 'NA', '26' => 'Irrigation Minister', '27' => 'PWD', '28' => 'Local Flying', '29' => 'State election commissioner', '30' => 'Chief election commissioner', '31' => 'DM', '32' => 'APC', '33' => 'Director Aviation', '34' => 'Route Check', '35' => 'Check Flight', '36' => 'Flower Dropping', '37' => 'Central Minister', '38' => 'Forest Minister', '39' => 'Principal Secretary irrigation', '40' => 'Secretary', '41' => 'Assembly Speaker', '42' => 'Health Minister', '43' => 'Power minister', '44' => 'Nager Vikas Minister', '45' => 'Election Commissioner', '46' => 'Urban Minister', '47' => 'Ground Run', '48' => 'Instant Release Check', '49' => 'Sports minister' );
         return view('external_flying_logs.statistics', compact('pilots', 'flying_types'));
     }
-    
+
     public function statisticsPrint($from_date='',$to_date='',$aircraft='',$flying_type='')
     {
         if(empty($from_date)||empty($to_date))
         {
             return 'Please select from date or to date';
         }
-        
+
         $from = $from_date;
         $to = $to_date;
         $data['from'] = $from;
@@ -274,28 +275,29 @@ class ExternalFlyingLogController extends Controller
 
         if(!empty($from)&&empty($to))
         {
-            $external_flying_logs->where('date','>=',date('Y-m-d',strtotime($from))); 
+            $external_flying_logs->where('date','>=',date('Y-m-d',strtotime($from)));
         }
         if(empty($from)&&!empty($to))
         {
-            $external_flying_logs->where('date','<=',date('Y-m-d',strtotime($to))); 
+            $external_flying_logs->where('date','<=',date('Y-m-d',strtotime($to)));
         }
         if(!empty($from)&&!empty($to))
         {
             $external_flying_logs->where(function($q) use($from, $to){
                 $q->whereBetween('date', [date('Y-m-d',strtotime($from)), date('Y-m-d',strtotime($to))]);
-            }); 
+            });
         }
-        
-        if(!empty($_POST['aircraft']))
+
+        if(!empty($aircraft))
         {
-          $external_flying_logs->where('aircraft_cateogry',$aircraft);  
+            $aircrafts = AirCraft::where('aircraft_cateogry', $aircraft)->pluck('aircraft_type');
+            $external_flying_logs->whereIn('aircraft_type',$aircrafts)->get();
         }
         if(!empty($_POST['flying_type']))
         {
-          $external_flying_logs->where('flying_type', $_POST['flying_type']);  
+          $external_flying_logs->where('flying_type', $_POST['flying_type']);
         }
-        
+
         $data['results'] = $external_flying_logs->orderBy('id', 'desc')->get();
 
         return view('external_flying_logs.print-statistics', $data)->render();

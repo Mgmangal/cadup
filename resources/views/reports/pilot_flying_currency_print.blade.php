@@ -64,14 +64,14 @@
             @foreach ($pilots as $key => $value)
                 <!--Rotor Wing-->
                 @if($aircraftType=='Helicopter')
-                    
+
                     @if ($report_type == '1')
                         <!--IR, PPC, Route Check & Medical Details-->
                         <tr>
                             <td>{{ ++$key }}</td>
                             <td class="text-left">{{ $value->fullName() }}</td>
                             <td>
-                                @php 
+                                @php
                                 $licence = \App\Models\PilotLicense::where(function($q) use ($value) {
                                     $q->where('license_id', 635)
                                       ->orWhere('license_id', 643)
@@ -88,17 +88,17 @@
                                 @endphp
                             </td>
                             <td>
-                                @php 
+                                @php
                                 $error=[];
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                { 
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
                                     echo getMasterName($a);
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -106,17 +106,17 @@
                                 }
                                 @endphp
                             </td>
-                            <td> 
+                            <td>
                                 <!--IR-->
-                                @php  
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     if($aircraftType=='Helicopter')
                                     {
                                         $t1=checkTrainingValidityByType($value->id, $a,'1390'); // Bell 412
@@ -127,7 +127,7 @@
                                         $error[$a]['ir']=checkTrainingValidity($value->id, '1398');
                                         echo checkTrainingValidity($value->id, '1398');
                                     }
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -137,15 +137,15 @@
                             </td>
                             <td>
                                 <!--PPC-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     if($aircraftType=='Helicopter')
                                     {
                                         $t1=checkTrainingValidityByType($value->id, $a,'647');// Bell 412
@@ -156,7 +156,7 @@
                                         $error[$a]['ppc']=checkTrainingValidity($value->id, '1385');
                                         echo checkTrainingValidity($value->id, '1385');
                                     }
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -166,15 +166,15 @@
                             </td>
                             <td>
                                 <!--RC-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     if($aircraftType=='Helicopter')
                                     {
                                         $t1=checkTrainingValidityByType($value->id, $a,'648');// Bell 412
@@ -198,7 +198,7 @@
                             </td>
                             <td>
                                 <!--Remark-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
                                 {   $t='VALID';
@@ -207,7 +207,7 @@
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
                                     foreach($error[$a] as $val)
-                                    {   
+                                    {
                                         if($val=='N/A')
                                         {
                                             $t='LAPSED';
@@ -232,7 +232,7 @@
                                     }
                                 }
                                 @endphp
-                            </td>    
+                            </td>
                         </tr>
                     @else
                         <!--FRTOL, RTR & English Proficiency Details-->
@@ -240,7 +240,7 @@
                             <td>{{ ++$key }}</td>
                             <td class="text-left">{{ $value->fullName() }}</td>
                             <td>
-                                @php 
+                                @php
                                 $status='VALID';
                                  $licence = \App\Models\PilotLicense::where(function($q) use ($value) {
                                     $q->where('license_id', 635)
@@ -258,17 +258,17 @@
                                 @endphp
                             </td>
                             <td>
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $a)
-                                { 
+                                {
                                     echo getMasterName($a);
                                 }
                                 @endphp
                             </td>
                             <td>
                                 <!--FRTOL-->
-                                @php 
+                                @php
                                     $FRTOL=checkLicense($value->id, '634');
                                     if(!empty($FRTOL))
                                     {
@@ -288,7 +288,7 @@
                             </td>
                             <td>
                                 <!--RTR-->
-                                @php 
+                                @php
                                     $RTR=checkLicense($value->id, '25');
                                     if(!empty($RTR))
                                     {
@@ -300,7 +300,7 @@
                                              $status='LAPSED';
                                         }
                                         echo $date;
-                                        
+
                                     }else{
                                         echo 'N/A';
                                         $status='LAPSED';
@@ -309,7 +309,7 @@
                             </td>
                             <td>
                                 <!--Language -->
-                                @php 
+                                @php
                                     $Language=checkLicense($value->id, '27');
                                     if(!empty($Language))
                                     {
@@ -329,11 +329,11 @@
                                             $status='LAPSED';
                                         }
                                     }
-                                @endphp 
+                                @endphp
                             </td>
                             <td>
                                 {{$status}}
-                            </td>    
+                            </td>
                         </tr>
                     @endif
                 @else
@@ -344,7 +344,7 @@
                             <td>{{ ++$key }}</td>
                             <td class="text-left">{{ $value->fullName() }}</td>
                             <td>
-                                @php 
+                                @php
                                 $licence = \App\Models\PilotLicense::where(function($q) use ($value) {
                                     $q->where('license_id', 635)
                                       ->orWhere('license_id', 643)
@@ -361,17 +361,17 @@
                                 @endphp
                             </td>
                             <td>
-                                @php 
+                                @php
                                 $error=[];
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                { 
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
                                     echo getMasterName($a);
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -379,22 +379,22 @@
                                 }
                                 @endphp
                             </td>
-                            <td> 
+                            <td>
                                 <!--IR-->
-                                @php  
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     $t1=checkTrainingValidityByType($value->id, $a,'637'); // HS 125
                                     $t2= checkTrainingValidityByType($value->id, $a,'1387'); // B200/B200GT
                                     $error[$a]['ir']=$t1!='N/A'?$t1:$t2;
                                     echo $t1!='N/A'?$t1:$t2;
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -404,20 +404,20 @@
                             </td>
                             <td>
                                 <!--PPC-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     $t1=checkTrainingValidityByType($value->id, $a,'1381');// HS125
                                     $t2= checkTrainingValidityByType($value->id, $a,'1382');//B200/B200GT
                                     $error[$a]['ppc']=$t1!='N/A'?$t1:$t2;
                                     echo $t1!='N/A'?$t1:$t2;
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -427,20 +427,20 @@
                             </td>
                             <td>
                                 <!--RC-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
-                                {   
+                                {
                                     if($k>0)
                                     {
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
-                                    
+
                                     $t1=checkTrainingValidityByType($value->id, $a,'46');// HS125
                                     $t2= checkTrainingValidityByType($value->id, $a,'1393');//B200/B200GT
                                     $error[$a]['rc']=$t1!='N/A'?$t1:$t2;
                                     echo $t1!='N/A'?$t1:$t2;
-                                    
+
                                     if($k>0)
                                     {
                                        echo '</span>';
@@ -454,7 +454,7 @@
                             </td>
                             <td>
                                 <!--Remark-->
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $k=> $a)
                                 {   $t='VALID';
@@ -463,7 +463,7 @@
                                      echo '<span style="display: block;border-top: 1px solid green;">';
                                     }
                                     foreach($error[$a] as $val)
-                                    {   
+                                    {
                                         if($val=='N/A')
                                         {
                                             $t='LAPSED';
@@ -488,7 +488,7 @@
                                     }
                                 }
                                 @endphp
-                            </td>    
+                            </td>
                         </tr>
                     @else
                         <!--FRTOL, RTR & English Proficiency Details-->
@@ -496,7 +496,7 @@
                             <td>{{ ++$key }}</td>
                             <td class="text-left">{{ $value->fullName() }}</td>
                             <td>
-                                @php 
+                                @php
                                 $status='VALID';
                                  $licence = \App\Models\PilotLicense::where(function($q) use ($value) {
                                     $q->where('license_id', 635)
@@ -514,17 +514,17 @@
                                 @endphp
                             </td>
                             <td>
-                                @php 
+                                @php
                                 $ac = \App\Models\AirCraft::groupBy('aircraft_type')->whereJsonContains('pilots',"$value->id")->pluck('aircraft_type')->toArray();
                                 foreach($ac as $a)
-                                { 
+                                {
                                     echo getMasterName($a);
                                 }
                                 @endphp
                             </td>
                             <td>
                                 <!--FRTOL-->
-                                @php 
+                                @php
                                     $FRTOL=checkLicense($value->id, '634');
                                     if(!empty($FRTOL))
                                     {
@@ -544,7 +544,7 @@
                             </td>
                             <td>
                                 <!--RTR-->
-                                @php 
+                                @php
                                     $RTR=checkLicense($value->id, '25');
                                     if(!empty($RTR))
                                     {
@@ -556,7 +556,7 @@
                                              $status='LAPSED';
                                         }
                                         echo $date;
-                                        
+
                                     }else{
                                         echo 'N/A';
                                         $status='LAPSED';
@@ -565,7 +565,7 @@
                             </td>
                             <td>
                                 <!--Language -->
-                                @php 
+                                @php
                                     $Language=checkLicense($value->id, '27');
                                     if(!empty($Language))
                                     {
@@ -585,11 +585,11 @@
                                             $status='LAPSED';
                                         }
                                     }
-                                @endphp 
+                                @endphp
                             </td>
                             <td>
                                 {{$status}}
-                            </td>    
+                            </td>
                         </tr>
                     @endif
                 @endif

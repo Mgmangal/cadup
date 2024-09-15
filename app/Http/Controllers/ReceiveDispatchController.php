@@ -345,7 +345,7 @@ class ReceiveDispatchController extends Controller
                 $sub_array[] = $value->source;
             }
             $sub_array[] = ($value->letter_type == 'Other') ? $value->other_letter_type : $value->letter_type;
-            $sub_array[] = checkBillStatus($value->id)?'<span class="btn btn-sm btn-success">Verified</span>':'<span class="btn btn-sm btn-info">Unverified</span>';
+            $sub_array[] = checkBillStatus($value->id)?'<span class="text-success">Verified</span>':'<span class="text-danger">Unverfy</span>';
             $sub_array[] = $action;
            $data[] = $sub_array;
         }
@@ -469,7 +469,7 @@ class ReceiveDispatchController extends Controller
             {
                 if(checkReceiptBillStatus($value->id,$value->receives_id))
                 {
-                    $fly_verify  = '<span class="btn btn-sm btn-success">Verified</span> <span class="btn btn-sm btn-danger" onclick="unverifyReceiptBill('.$value->receives_id.','.$value->id.')">Unveify</span>';
+                    $fly_verify  = '<span class="btn btn-sm btn-success">Verified</span> <span class="btn btn-sm btn-danger" onclick="unverifyReceiptBill('.$value->receives_id.','.$value->id.')">Unverfy</span>';
                 }else{
                     $fly_verify  = '<a href="'.route('app.receive.flyingVerifyLogs',['receipt_id'=>$value->receives_id,'bill_id'=>$value->id]).'" class="btn btn-primary btn-sm m-1">Verify Sector</a>';
                 }

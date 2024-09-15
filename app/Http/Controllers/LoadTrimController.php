@@ -6,7 +6,6 @@ use App\Models\LoadTrim;
 use App\Models\File;
 use App\Models\AirCraft;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 class LoadTrimController extends Controller
 {
@@ -94,11 +93,9 @@ class LoadTrimController extends Controller
         $data = array();
 		foreach ($result as $key => $value) {
             $action = '';
-            
             $action  .= '<a href="'.route('app.load.trim.edit', $value->id).'" class="btn btn-primary btn-sm m-1">Edit</a>';
-            
             $action .= '<a href="'.route('app.load.trim.cancelled', $value->id).'" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+        
             $sub_array = array();
 			$sub_array[] = ++$key;
             $sub_array[] =  date('d-m-Y',strtotime($value->dates));

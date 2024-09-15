@@ -57,34 +57,32 @@ class HomeController extends Controller
         if (!empty($type)&&$type=='aircraft') {
             $licens->where('sub_type', '=', 'license')->orWhere('sub_type', '=', 'training')->orWhere('sub_type', '=', 'qualification')->orWhere('sub_type', '=', 'ground_training')->orWhere('sub_type', '=', 'medical');
         }
-        $licenses=$licens->get();
+        $licens->where('status', '=', 'active')->where('is_delete','0');
+        $license=$licens->get();
         $html .= '<div class="row">';
         $html .= '<table class="table border">';
-        $html .= '<tr><th>Name</th><th>Type</th><th>Mandatory</th><th>Current For Flying</th></tr>';
-        foreach ($licenses as $key => $value) {
-            $d = MasterAssign::where('master_id', $id)->where('is_for','=',$type)->where('certificate_id', $value->id)->first();
-            $html .= '<tr>';
-            $html .= '<td>';
-            $html .= '<div class="form-check m-2">
-                            <input type="hidden" name="edit_id[' . $key . ']" value="' . (!empty($d->id) ? $d->id : '') . '">
-                            <input class="form-check-input" type="checkbox" value="' . $value->id . '" ' . (!empty($d->certificate_id) && $d->certificate_id == $value->id ? 'checked' : '') . ' id="mng' . $value->id . '" name="licenses[' . $key . ']">
-                            <label class="form-check-label" for="mng' . $value->id . '">' . $value->name . '</label>
-                        </div>';
-            $html .='</td>';
-            $html .= '<td>' . ucfirst($value->sub_type) . '</td>';
-            $html .= '<td>';
-            $html .= ' <div class="form-check m-2">
-                            <input class="form-check-input" type="checkbox" value="yes" ' . (!empty($d) && $d->is_mendatory == 'yes' ? 'checked' : '') . ' id="mng1' . $value->id . '" name="is_mendatory[' . $key . ']">
-                            <label class="form-check-label" for="mng1' . $value->id . '">Yes</label>
-                        </div>';
-            $html .= '</td>';
-            $html .= '<td>';
-            $html .= '<div class="form-check m-2">
-                            <input class="form-check-input" type="checkbox" value="yes" ' . (!empty($d) && $d->is_active == 'yes' ? 'checked' : '') . ' id="mng2' . $value->id . '" name="is_active[' . $key . ']">
-                            <label class="form-check-label" for="mng2' . $value->id . '">Yes</label>
-                        </div>';
-            $html .= '</td>';
-            $html .= '</tr>';
+        $html .= '<tr><th>Name</th><th>Type</th></tr>';
+        $groupedBySubType = $license->groupBy('sub_type');
+        
+        foreach ($groupedBySubType as $subType => $licenses) {
+            $html .= '<tr>
+                        <td colspan="2"><strong>'. ucwords(str_replace('_', ' ', $subType)) .'</strong></td>
+                    </tr>';
+            foreach ($licenses as $key => $value) {
+                if($value->status=='active'){
+                $d = MasterAssign::where('master_id', $id)->where('is_for','=',$type)->where('certificate_id', $value->id)->first();
+                $html .= '<tr>';
+                $html .= '<td>';
+                $html .= '<div class="form-check m-2">
+                                <input type="hidden" name="edit_id[' . $value->id . ']" value="' . (!empty($d->id) ? $d->id : '') . '">
+                                <input class="form-check-input" type="checkbox" value="' . $value->id . '" ' . (!empty($d->certificate_id) && $d->certificate_id == $value->id ? 'checked' : '') . ' id="mng' . $value->id . '" name="licenses[' . $value->id . ']">
+                                <label class="form-check-label" for="mng' . $value->id . '">' . $value->name . '</label>
+                            </div>';
+                $html .='</td>';
+                $html .= '<td>' . ucwords(str_replace('_', ' ',$value->sub_type)) . '</td>';
+                $html .= '</tr>';
+                }
+            }
         }
         $html .= '</table>';
         $html .= '</div>';
@@ -102,13 +100,12 @@ class HomeController extends Controller
         $is_mendatory = $request->is_mendatory;
         $is_active = $request->is_active;
         MasterAssign::where('master_id', $master_id)->where('is_for', $type)->delete();
+        
         foreach ($licenses as $key => $val) {
             if (!empty($val)) {
                 $data = new MasterAssign;
                 $data->master_id = $master_id;
                 $data->certificate_id = $val;
-                $data->is_mendatory = !empty($is_mendatory[$key]) ? $is_mendatory[$key] : 'no';
-                $data->is_active = !empty($is_active[$key]) ? $is_active[$key] : 'no';
                 $data->is_for=$type;
                 $data->save();
             }
@@ -265,6 +262,18 @@ class HomeController extends Controller
         $term=$request->term;
         $masters = Master::where('name', 'LIKE', '%' .$term. '%')->where('type', '=', 'sectors')->where('status','active')->pluck('name')->all();
         return response()->json($masters);
+    }
+
+
+    public function userBySection(Request $request)
+    {
+        $users = User::whereJsonContains('section', $request->id)->where('status','active')->where('is_delete','0')->get();
+        $html='';
+        $html = '<option value="">Please Select</option>';
+        foreach ($users as $user) {
+            $html .= '<option value="' . $user->id . '">' . $user->fullName() . '</option>';
+        }
+        return response()->json($html);
     }
     public function userIndex()
     {

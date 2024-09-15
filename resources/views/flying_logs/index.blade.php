@@ -6,7 +6,7 @@
         </ul>
     </x-slot>
     <x-slot name="css">
-         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" />
         <link href="{{asset('assets/plugins/datatables.net-bs5/css/dataTables.bootstrap5.min.css')}}" rel="stylesheet" />
         <link href="{{asset('assets/plugins/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css')}}" rel="stylesheet" />
         <link href="{{asset('assets/plugins/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css')}}" rel="stylesheet" />
@@ -37,31 +37,6 @@
                 </div>
                 <div class="col-md-1">
                     <div class="form-group">
-                        <label for="aircraft" class="form-label">Aircraft</label>
-                        <select class="form-control filters" id="aircraft">
-                            <option value="">Select</option>
-                            @foreach($aircrafts as $aircraft)
-                            <option value="{{$aircraft->id}}">{{$aircraft->call_sign}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-1">
-                    <div class="form-group">
-                        <label for="$passenger" class="form-label">Passenger </label>
-                        <select class="form-control filters" id="passenger">
-                            <option value="">Select</option>
-                            @foreach($passengers as $passenger)
-                                <option value="{{$passenger->more_data}}">{{$passenger->more_data}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                
-                
-                
-                <div class="col-md-1">
-                    <div class="form-group">
                         <label for="from_sector" class="form-label">From Sector</label>
                         <input type="text" class="form-control filters auto_complete_input" id="from_sector" placeholder="" autocomplete="off">
                     </div>
@@ -70,6 +45,17 @@
                     <div class="form-group">
                         <label for="to_sector" class="form-label">To Sector</label>
                         <input type="text" class="form-control filters auto_complete_input" id="to_sector" placeholder="" autocomplete="off">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="aircraft" class="form-label">Aircraft</label>
+                        <select class="form-control filters" id="aircraft">
+                            <option value="">Select</option>
+                            @foreach($aircrafts as $aircraft)
+                            <option value="{{$aircraft->id}}">{{$aircraft->call_sign}}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 <div class="col-md-2">

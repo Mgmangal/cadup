@@ -29,14 +29,14 @@ class ReportController extends Controller
         if (empty($aircraft)) {
             return 'Please select aircraft type';
         }
-        
+
         $data['date'] = $date;
         $data['aircraft'] = $aircraft;
         $data['pilots'] = getCategoriesPilots($aircraft);
 
         return view('reports.pilot_ground_training_print', $data)->render();
     }
-    
+
     public function pilotFlyingCurrency()
     {
         $pilots = User::where('designation', '1')->where('status', 'active')->get();
@@ -60,7 +60,7 @@ class ReportController extends Controller
         if(empty($report_type)){
             return 'Please select report type';
         }
-        
+
         $data['date'] = $date;
         $data['aircraft'] = $aircraft;
         $data['report_type'] = $report_type;
@@ -118,7 +118,7 @@ class ReportController extends Controller
         $data['rotor_wing_pilots'] = getCategoriesPilots('Rotor Wing');
         return view('reports.print-aircraft-wise-summary',$data);
     }
-    
+
     public function vipRecency()
     {
         $pilots = User::where('designation', '1')->where('status', 'active')->get();
@@ -131,4 +131,8 @@ class ReportController extends Controller
         $data['aircraft_type']=$aircraft_type;
         return view('reports.vip_recency_print', $data);
     }
-}
+    public function aaiReports()
+    {
+        return view('reports.aai-reports');
+    }
+} 

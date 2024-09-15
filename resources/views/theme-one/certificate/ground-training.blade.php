@@ -1,4 +1,4 @@
-@extends('theme-one.layouts.app',['title' => 'Certificate','sub_title'=>'Ground Training'])
+@extends('theme-one.layouts.app',['title' => 'Certificate','sub_title'=>$sub_title])
 @section('css')
 <link href="{{asset('assets/theme_one/lib/datatables.net-dt/css/jquery.dataTables.min.css')}}" rel="stylesheet">
 <link href="{{asset('assets/theme_one/lib/datatables.net-responsive-dt/css/responsive.dataTables.min.css')}}"
@@ -9,11 +9,27 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between">
-        <h3 class="card-title">Ground Training List</h3>
-        <!-- <a href="{{route('app.flying-details.create')}}" class="btn btn-primary btn-sm p-2">Add New</a> -->
+        <h3 class="card-title">{{ $sub_title }}</h3>
+        <!-- <a href="#" class="btn btn-primary btn-sm p-2">Add New</a> -->
     </div>
     <div class="card-body">
-
+        <div class="row mb-3">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <lable for="pilots">Crew</lable>
+                    <select name="pilots" id="pilots" class="form-control filters">
+                        @if($pilots->count() == 1 && $pilots->first()->id == Auth::user()->id)
+                            <option value="{{ $pilots->first()->id }}">{{ $pilots->first()->salutation . ' ' . $pilots->first()->name }}</option>
+                        @else
+                            <option value="">Select Poilot</option>
+                            @foreach($pilots as $pilot)
+                                <option value="{{ $pilot->id }}">{{ $pilot->salutation . ' ' . $pilot->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="table-responsive=">
             <table id="datatableGroundTraining" class="table text-nowrap w-100">
                 <thead>
@@ -45,7 +61,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="viewModalBody">
-                
+
             </div>
         </div>
     </div>
@@ -91,12 +107,12 @@ function groundtrainingdataList() {
             className: 'btn btn-default btn-sm'
         }],
         ajax: {
-            url: "{{ route('user.ltm.monitoringGroundTrainingList') }}",
+            url: "{{ route('user.certificate.groundTrainingList') }}",
             type: 'POST',
             data: {
                 "_token": "{{ csrf_token() }}",
                 dates: $('.datepicker').val(),
-                user_id:"{{Auth::user()->id}}"
+                user_id: $('#pilots').val(),
             },
         },
         "initComplete": function() {

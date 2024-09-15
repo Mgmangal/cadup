@@ -213,10 +213,10 @@
             }
             function setDefaultDate(value)
             {
-              $('.d_date').val(value);  
-              $('.a_date').val(value);  
+              $('.d_date').val(value);
+              $('.a_date').val(value);
             }
-            
+
             let pilots = '';
             var last_arrival_time = '';
             var last_arrival_times = '';
@@ -266,14 +266,14 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
-                    // $(".datestime").datetimepicker({ defaultDate:ct});   
+                    // $(".datestime").datetimepicker({ defaultDate:ct});
                     // $(".datestime").val('');
                 }
             });
-            
+
             $('.selct2').select2({
                 tags: true,
                 tokenSeparators: [',', ' '],
@@ -289,12 +289,12 @@
                     let arrival_date = $(e).closest('.row').find('.a_date').val();
                     let arrival_time = $(e).closest('.row').find('.a_time').val();
                     if (departure_time != '' && arrival_time != ''&& departure_date!='' && arrival_date!='') {
-                       
+
                         // console.log(departure_date+' '+departure_time);
                         // console.log(arrival_date+' '+arrival_time);
                         let depa = setDateTime(departure_date+' '+departure_time);
                         let darr = setDateTime(arrival_date+' '+arrival_time);
-                        
+
                         if (depa >= darr) {
                             $(e).closest('.row').find('.a_time').val('');
                             warning('Arrival time should be more than departure time');
@@ -304,11 +304,11 @@
                         $(e).closest('.row').find('.arrival_time').val(arrival_date+' '+arrival_time);
                         let block_time = getTimeDefrence(toJSDate(departure_date+' '+departure_time), toJSDate(arrival_date+' '+arrival_time));;
                         $(e).closest('.row').find('.block_time').val(block_time);
-                        totalBlockTime(); 
+                        totalBlockTime();
                     }
                 }, 1000);
             }
-            
+
             function checkDateTime()
             {
                 var departure_date_time='';
@@ -320,7 +320,7 @@
                         departure_date_time=setDateTime($(this).val()+' '+$(this).next().val());
                     }else{
                         arrival_date_time=setDateTime($(this).val()+' '+$(this).next().val());
-                        if (departure_date_time >= arrival_date_time) {
+                        if (departure_date_time > arrival_date_time) {
                             $(this).next().val('');
                             warning('Please enter valid time');
                             return false;
@@ -329,7 +329,7 @@
                     }
                 });
             }
-            
+
             function totalBlockTime() {
                 var t1 = "00:00";
                 var mins = 0;
@@ -378,7 +378,7 @@
 
             $('#manageForm').submit(function(e) {
                 e.preventDefault();
-                if (is_valid()) 
+                if (is_valid())
                 {
                     $('#manageForm').find('.invalid-feedback').hide();
                     $('#manageForm').find('.is-invalid').removeClass('is-invalid');
@@ -417,16 +417,16 @@
                             let a_date = $(".a_date").last().val();
                             let a_time = $(".a_time").last().val();
                             let flying_type = $(".flying_type").last().val();
-                            
+
                             let pilot1_id = $(".pilot1_id").last().val();
                             let pilot1_role = $(".pilot1_role").last().val();
                             let pilot2_id = $(".pilot2_id").last().val();
                             let pilot2_role = $(".pilot2_role").last().val();
                             // console.log(pilots);
-                            var fieldHTML = '<div class="add_more border-top"><div class="row m-3"><div class="col-md-12 mb-3 bg-info justify-content-between d-flex"> <div class="form-lable p-2 text-white"><b>Sortie No. ' + x + '</b></div> <a href="javascriot:void(0);" class="btn btn-sm btn-danger m-2 remove_button">Remove</a> </div><div class="col-md-3"><div class="form-group"><label class="form-label">Pilot<span class="text-danger">*</span></label><select name="pilot1_id[' + x + ']" tabindex="' + x + '1" class="form-control pilot1_id pilots is_valid pilot1_id_'+x+'" onchange="changeHandlerPilotOne(this);">' + pilots + ' </select></div></div><div class="col-md-3"><div class="form-group"><label class="form-label">Role<span class="text-danger">*</span></label> <select tabindex="' + x + '2" name="pilot1_role[' + x + ']" class="form-control pilot1_role  is_valid pilot1_role_'+x+'" onchange="changeHandlerRoleOne(this);"> <option value="">Select</option>@foreach($pilot_roles as $pilot_role)<option value="{{$pilot_role->id}}">{{$pilot_role->name}}</option>@endforeach</select> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Second Pilot<span class="text-danger">*</span></label> <select name="pilot2_id[' + x + ']" tabindex="' + x + '3" class="form-control pilot2_id pilots is_valid pilot2_id_'+x+'" onchange="changeHandlerPilotTwo(this);"> <option value="">Select</option>' + pilots + ' </select> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Second Pilot Role<span class="text-danger">*</span></label> <select tabindex="' + x + '4" name="pilot2_role[' + x + ']" class="form-control pilot2_role is_valid pilot2_role_'+x+'" onchange="changeHandlerRoleTwo(this);"> <option value="">Select</option>@foreach($pilot_roles as $pilot_role)<option value="{{$pilot_role->id}}">{{$pilot_role->name}}</option>@endforeach</select> </div> </div> </div> <div class="row m-3"> <div class="col-md-3"> <div class="form-group"> <label class="form-label">From Sector<span class="text-danger">*</span></label> <input type="text" tabindex="' + x + '5" class="form-control fron_sector auto_complete_input is_valid" name="fron_sector[' + x + ']" value="' + fromSector + '" placeholder="Please Enter Source Sector"> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">To Sector<span class="text-danger">*</span></label> <input type="text" tabindex="' + x + '6" class="form-control to_sector auto_complete_input is_valid" name="to_sector[' + x + ']" placeholder="Please Enter Destination Sector"> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Flying Type</label> <select name="flying_type[' + x + ']" tabindex="' + x + '7" class="form-control flying_type flying_type_' + x + ' is_valid"> <option value="">Select</option>@foreach($flying_types as $flying_type)<option value="{{$flying_type->id}}">{{$flying_type->name}}</option>@endforeach</select> </div> </div><div class="col-md-3"><div class="form-group"><label class="form-label">Remark </label><input type="text" class="form-control auto_complete_input" name="comment[' + x + ']" tabindex="' + x + '7" placeholder="Please Enter Remark"></div></div> </div> <div class="row m-3"> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Departure Time</label> <div class="input-group"> <label class="input-group-text" for="d_time"> <i class="fa fa-calendar"></i> </label> <input type="text" class="form-control dates d_date is_valid check_date_time" onchange="calculateBlockTime(this);" name="d_date[' + x + ']" placeholder="dd-mm-yyyy" onchange="validateDate();" value="'+a_date+'"> <input type="text" tabindex="' + x + '8" class="form-control time_hhmm d_time is_valid" onchange="calculateBlockTime(this);" name="d_time[' + x + ']" placeholder="HH:MM" onchange="validateDate();"> <input type="hidden" name="departure_time[' + x + ']" class="departure_time"> </div> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Arrival Time</label> <div class="input-group"> <label class="input-group-text"> <i class="fa fa-calendar"></i> </label> <input type="text" class="form-control dates a_date is_valid check_date_time" onchange="calculateBlockTime(this);" name="a_date[' + x + ']" placeholder="dd-mm-yyyy" onchange="validateDate();" value="'+a_date+'"/> <input type="text" tabindex="' + x + '9" class="form-control time_hhmm a_time is_valid" onchange="calculateBlockTime(this);" name="a_time[' + x + ']" placeholder="HH:MM" onchange="validateDate();" /> <input type="hidden" name="arrival_time[' + x + ']" class="arrival_time"> </div> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Block Time</label> <input type="text" class="form-control block_time" name="block_time[' + x + ']" placeholder="HH:MM" readonly> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Night Hours</label> <input type="text" tabindex="' + x + '10" class="form-control time_hhmm" name="night_time[' + x + ']" placeholder="HH:MM" value=""></div></div></div></div>'; //New input field html 
-                            
+                            var fieldHTML = '<div class="add_more border-top"><div class="row m-3"><div class="col-md-12 mb-3 bg-info justify-content-between d-flex"> <div class="form-lable p-2 text-white"><b>Sortie No. ' + x + '</b></div> <a href="javascriot:void(0);" class="btn btn-sm btn-danger m-2 remove_button">Remove</a> </div><div class="col-md-3"><div class="form-group"><label class="form-label">Pilot<span class="text-danger">*</span></label><select name="pilot1_id[' + x + ']" tabindex="' + x + '1" class="form-control pilot1_id pilots is_valid pilot1_id_'+x+'" onchange="changeHandlerPilotOne(this);">' + pilots + ' </select></div></div><div class="col-md-3"><div class="form-group"><label class="form-label">Role<span class="text-danger">*</span></label> <select tabindex="' + x + '2" name="pilot1_role[' + x + ']" class="form-control pilot1_role  is_valid pilot1_role_'+x+'" onchange="changeHandlerRoleOne(this);"> <option value="">Select</option>@foreach($pilot_roles as $pilot_role)<option value="{{$pilot_role->id}}">{{$pilot_role->name}}</option>@endforeach</select> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Second Pilot<span class="text-danger">*</span></label> <select name="pilot2_id[' + x + ']" tabindex="' + x + '3" class="form-control pilot2_id pilots is_valid pilot2_id_'+x+'" onchange="changeHandlerPilotTwo(this);"> <option value="">Select</option>' + pilots + ' </select> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Second Pilot Role<span class="text-danger">*</span></label> <select tabindex="' + x + '4" name="pilot2_role[' + x + ']" class="form-control pilot2_role is_valid pilot2_role_'+x+'" onchange="changeHandlerRoleTwo(this);"> <option value="">Select</option>@foreach($pilot_roles as $pilot_role)<option value="{{$pilot_role->id}}">{{$pilot_role->name}}</option>@endforeach</select> </div> </div> </div> <div class="row m-3"> <div class="col-md-3"> <div class="form-group"> <label class="form-label">From Sector<span class="text-danger">*</span></label> <input type="text" tabindex="' + x + '5" class="form-control fron_sector auto_complete_input is_valid" name="fron_sector[' + x + ']" value="' + fromSector + '" placeholder="Please Enter Source Sector"> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">To Sector<span class="text-danger">*</span></label> <input type="text" tabindex="' + x + '6" class="form-control to_sector auto_complete_input is_valid" name="to_sector[' + x + ']" placeholder="Please Enter Destination Sector"> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Flying Type</label> <select name="flying_type[' + x + ']" tabindex="' + x + '7" class="form-control flying_type flying_type_' + x + ' is_valid"> <option value="">Select</option>@foreach($flying_types as $flying_type)<option value="{{$flying_type->id}}">{{$flying_type->name}}</option>@endforeach</select> </div> </div><div class="col-md-3"><div class="form-group"><label class="form-label">Remark </label><input type="text" class="form-control auto_complete_input" name="comment[' + x + ']" tabindex="' + x + '7" placeholder="Please Enter Remark"></div></div> </div> <div class="row m-3"> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Departure Time</label> <div class="input-group"> <label class="input-group-text" for="d_time"> <i class="fa fa-calendar"></i> </label> <input type="text" class="form-control dates d_date is_valid check_date_time" onchange="calculateBlockTime(this);" name="d_date[' + x + ']" placeholder="dd-mm-yyyy" onchange="validateDate();" value="'+a_date+'"> <input type="text" tabindex="' + x + '8" class="form-control time_hhmm d_time is_valid" onchange="calculateBlockTime(this);" name="d_time[' + x + ']" placeholder="HH:MM" onchange="validateDate();"> <input type="hidden" name="departure_time[' + x + ']" class="departure_time"> </div> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Arrival Time</label> <div class="input-group"> <label class="input-group-text"> <i class="fa fa-calendar"></i> </label> <input type="text" class="form-control dates a_date is_valid check_date_time" onchange="calculateBlockTime(this);" name="a_date[' + x + ']" placeholder="dd-mm-yyyy" onchange="validateDate();" value="'+a_date+'"/> <input type="text" tabindex="' + x + '9" class="form-control time_hhmm a_time is_valid" onchange="calculateBlockTime(this);" name="a_time[' + x + ']" placeholder="HH:MM" onchange="validateDate();" /> <input type="hidden" name="arrival_time[' + x + ']" class="arrival_time"> </div> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Block Time</label> <input type="text" class="form-control block_time" name="block_time[' + x + ']" placeholder="HH:MM" readonly> </div> </div> <div class="col-md-3"> <div class="form-group"> <label class="form-label">Night Hours</label> <input type="text" tabindex="' + x + '10" class="form-control time_hhmm" name="night_time[' + x + ']" placeholder="HH:MM" value=""></div></div></div></div>'; //New input field html
+
                             $(wrapper).append(fieldHTML); //Add field html
-                           
+
                             $('.flying_type_'+x).val(flying_type);
                             $('.pilot1_id_'+x).val(pilot1_id);
                             $('.pilot2_id_'+x).val(pilot2_id);
@@ -440,16 +440,16 @@
                                 formatDate:'Y/m/d',
                                 autoclose: true,
                                 clearBtn: true,
-                                todayButton: true,               
+                                todayButton: true,
                                 // maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                                 onSelectDate: function(ct) {
-                                    // $(".datestime").datetimepicker({ defaultDate:ct});   
+                                    // $(".datestime").datetimepicker({ defaultDate:ct});
                                     // $(".datestime").val('');
                                 }
                             });
                             selectPassenger();
                         }
-                       
+
                     } else {
                         alert('A maximum of ' + maxField + ' fields are allowed to be added. ');
                     }
@@ -510,14 +510,14 @@
                     return this.value === val;
                 }).prop('disabled', true);
             }
-            
+
             function autoCompleteInput()
             {
                 $( ".auto_complete_input" ).autocomplete({
                   source: jQuery.parseJSON( localStorage.getItem('htmltest'))
                 });
             }
-          
+
             autoCompleteInput();
 
             function getSectors()

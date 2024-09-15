@@ -23,7 +23,7 @@
             <form action="{{route('app.pilot.leave.update',$data->id)}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row m-3">
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="user_id" class="form-label">Crew<span class="text-danger">*</span></label>
                             <select class="form-control" id="user_id" name="user_id">
@@ -34,7 +34,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="master_id" class="form-label">Leave Type<span class="text-danger">*</span></label>
                             <select class="form-control" id="master_id" name="master_id">
@@ -45,21 +45,12 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label for="documnets" class="form-label">Doc 1</label>
+                            <label for="documnets" class="form-label">Doc</label>
                             <input type="file" class="form-control" id="documnets" name="documnets" >
                             @if(!empty($data->documnets))
                             <a href="{{asset('uploads/leave/'.$data->documnets)}}" target="_blank">View</a>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="other_doc" class="form-label">Doc 2</label>
-                            <input type="file" class="form-control" id="other_doc" name="other_doc" >
-                            @if(!empty($data->other_doc))
-                            <a href="{{asset('uploads/leave/'.$data->other_doc)}}" target="_blank">View</a>
                             @endif
                         </div>
                     </div>
@@ -72,7 +63,7 @@
                             <input type="text" class="form-control daterange" id="leave_dates" name="leave_dates" placeholder="Please Select Date" value="{{$data->leave_dates}}">
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label for="status" class="form-label">Status<span class="text-danger">*</span></label>
                             <select class="form-control" id="status" name="status">
@@ -83,17 +74,15 @@
                             </select>
                         </div>
                     </div>
-                    
-                </div>
-                 <div class="row m-2">
-                    <div class="col-md-12">
+                    <div class="col-md-2">
                         <div class="form-group">
-                            <lable>Remark</lable>
-                            <textarea class="form-control" name="remark">{{$data->remark}}</textarea>
+                            <label for="no_of_days" class="form-label">Leave Duration</label>
+                            <input type="number" class="form-control" name="no_of_days" id="no_of_days" value="{{$data->no_of_days}}" required>
                         </div>
                     </div>
                 </div>
-            
+
+
                 <div class="row m-3 text-center">
                     <div class="col-md-12 ">
                         <button type="submit" class="btn btn-primary">Submit</button>
@@ -122,6 +111,8 @@
                 // maxDate: '12/31/2018',
             }, function(start, end) {
                 // $('#daterange input').val(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                var days = end.diff(start, 'days') + 1;
+                //$('#no_of_days').val(days);
             });
         </script>
     </x-slot>

@@ -19,4 +19,8 @@ class PilotSfa extends Model
         return $this->hasMany(SfaFlyingLog::class, 'pilot_sfa_id');
     }
     
+    public function dataTransfers()
+    {
+        return $this->hasMany(DataTransfer::class, 'data_id');
+    }
 }

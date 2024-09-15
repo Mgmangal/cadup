@@ -1,0 +1,1 @@
+[29-Aug-2024 20:15:15 UTC] PHP Fatal error:  Cannot use isset() on the result of an expression (you can use "null !== expression" instead) in /home/ssaklive/public_html/cadup/stg/app/Http/Controllers/LTMController.php on line 268

@@ -24,16 +24,69 @@ class HomeController extends Controller
 
     public function index()
     {
-        $total_user=User::where('status','active')->count()-1;
-        $active_pilot=User::where('designation','1')->where('status','active')->count();
-        $total_air_croft=AirCraft::count();
-        $active_air_croft=AirCraft::where('status','active')->count();
-        $total_designation=Master::where('type','designation')->count();
-        $total_section=Master::where('type','section')->count();
-        //echo now()->subDays(30)->endOfDay();
-        // $chartData=FlyingLog::selectRaw("COUNT(*) views, date")->groupBy('date')->orderBy('date', 'DESC')->get();
-        $chartData=FlyingLog::selectRaw("COUNT(*) views, date")->groupBy('date')->where('date', '>', date('Y-m-d',strtotime(now()->subDays(30)->endOfDay())))->get();
-        return view('dashboard',compact('chartData','active_pilot','active_air_croft','total_user','total_air_croft','total_designation','total_section'));
+        $data['TotalFlight']=FlyingLog::where(function($q){
+            $q->where('pilot1_id', auth()->user()->id)->orWhere('pilot2_id', auth()->user()->id);
+        })->count();
+        $data['TotalFlyingHours'] = FlyingLog::selectRaw('SUM(TIMESTAMPDIFF(HOUR, departure_time, arrival_time)) as total_hours')
+            ->where(function($query) {
+                $query->where('pilot1_id', auth()->user()->id)
+                    ->orWhere('pilot2_id', auth()->user()->id);
+            })->pluck('total_hours')->first();
+        $certificates=auth()->user()->certificates;
+        $authorisation=$certificates->where('type','certificate')->where('sub_type','authorisation');
+        $Licenses=$certificates->where('type','certificate')->where('sub_type','license');
+        $data['TotalLicensesActive']=0;
+        $data['TotalLicensesRenuwal']=0;
+        $data['TotalLicensesLapsed']=0;
+        foreach ($Licenses as $key => $value) {
+            $data['TotalLicensesActive'] += $value->pivot->is_lifetime=='yes' ? 1 : 0;
+            $data['TotalLicensesRenuwal'] += $value->pivot->is_lifetime=='no' ? 1 : 0;
+            $data['TotalLicensesLapsed'] += $value->pivot->is_lifetime=='lapsed' ? 1 : 0;
+            
+        }
+        $Trainings=$certificates->where('type','certificate')->where('sub_type','training');
+        $data['TotalTrainingActive']=0;
+        $data['TotalTrainingRenuwal']=0;
+        $data['TotalTrainingLapsed']=0;
+        foreach ($Trainings as $key => $value) {
+            $data['TotalTrainingActive'] += $value->pivot->is_lifetime=='yes' ? 1 : 0;
+            $data['TotalTrainingRenuwal'] += $value->pivot->is_lifetime=='no' ? 1 : 0;
+            $data['TotalTrainingLapsed'] += $value->pivot->is_lifetime=='lapsed' ? 1 : 0;
+        }
+        $Medical=$certificates->where('type','certificate')->where('sub_type','medical');
+        $data['TotalMedicalActive']=0;
+        $data['TotalMedicalRenuwal']=0;
+        $data['TotalMedicalLapsed']=0;
+        foreach ($Medical as $key => $value) {
+            $data['TotalMedicalActive'] += $value->pivot->is_lifetime=='yes' ? 1 : 0;
+            $data['TotalMedicalRenuwal'] += $value->pivot->is_lifetime=='no' ? 1 : 0;
+            $data['TotalMedicalLapsed'] += $value->pivot->is_lifetime=='lapsed' ? 1 : 0;
+        }
+        $Qualification=$certificates->where('type','certificate')->where('sub_type','qualification');
+        $data['TotalQualificationActive']=0;
+        $data['TotalQualificationRenuwal']=0;
+        $data['TotalQualificationLapsed']=0;
+        foreach ($Qualification as $key => $value) {
+            $data['TotalQualificationActive'] += $value->pivot->is_lifetime=='yes' ? 1 : 0;
+            $data['TotalQualificationRenuwal'] += $value->pivot->is_lifetime=='no' ? 1 : 0;
+            $data['TotalQualificationLapsed'] += $value->pivot->is_lifetime=='lapsed' ? 1 : 0;
+        }
+        $ground_training=$certificates->where('type','certificate')->where('sub_type','ground_training');
+        $data['TotalGroundTrainingActive']=0;
+        $data['TotalGroundTrainingRenuwal']=0;
+        $data['TotalGroundTrainingLapsed']=0;
+        foreach ($ground_training as $key => $value) {
+            
+            $data['TotalGroundTrainingActive'] += $value->pivot->is_lifetime=='yes' ? 1 : 0;
+            $data['TotalGroundTrainingRenuwal'] += $value->pivot->is_lifetime=='no' ? 1 : 0;
+            $data['TotalGroundTrainingLapsed'] += $value->pivot->is_lifetime=='lapsed' ? 1 : 0;
+        }
+        $data['RecentFlightSchedule']=FlyingLog::selectRaw('*,TIMESTAMPDIFF(MINUTE, departure_time, arrival_time) as total_mints')->with('aircraft')->where(function($q){
+            $q->where('pilot1_id', auth()->user()->id)->orWhere('pilot2_id', auth()->user()->id);
+        })->orderBy('id','desc')->first();
+        $data['barChartData']=$this->getLast30DaysFlightLog();
+
+        return view('theme-one.dashboard',$data);
     }
 
     public function getlicense(Request $request)
@@ -255,10 +308,7 @@ class HomeController extends Controller
         $masters = Master::where('name', 'LIKE', '%' .$term. '%')->where('type', '=', 'sectors')->where('status','active')->pluck('name')->all();
         return response()->json($masters);
     }
-    public function userIndex()
-    {
-        return view('theme-one.dashboard');
-    }
+    
 
     public function changeTimezone(Request $request)
     {
@@ -267,5 +317,15 @@ class HomeController extends Controller
         return response()->json([
             'success' => true
         ]);
+    }
+
+    public function getLast30DaysFlightLog()
+    {
+        $date = date('Y-m-d', strtotime('-190 days'));
+        $data = FlyingLog::selectRaw('date, count(*) as total')->where(function($query) {
+            $query->where('pilot1_id', auth()->user()->id)
+                ->orWhere('pilot2_id', auth()->user()->id);
+        })->where('date', '>=', $date)->groupBy('date')->orderBy('date', 'desc')->limit(30)->get();
+        return $data;
     }
 }

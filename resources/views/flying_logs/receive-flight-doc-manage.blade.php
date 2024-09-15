@@ -258,7 +258,6 @@
             $('.filters').on('change',function(){
                 dataList();
             });
-            
         </script>
     </x-slot>
 </x-app-layout>

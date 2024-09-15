@@ -15,21 +15,17 @@ return new class extends Migration
     {
         Schema::create('user_certificates', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->string('name')->nullable();
-            $table->string('number')->nullable();
-            $table->date('done_at')->nullable();
-            $table->date('renewed_on')->nullable();
-            $table->date('valid_till')->nullable();
-            $table->date('next_renewal')->nullable();
-            $table->text('limitations')->nullable();
-            $table->text('examiner_instructor')->nullable();
-            $table->enum('result',['Fit','Unfit','Temporary Unfit'])->nullable();
-            $table->enum('done_on',['Simulator','Aircraft'])->nullable();
-            $table->string('aircraft')->nullable();
-            $table->string('attachment')->nullable();
-            $table->enum('status',['Active','Inactive'])->default('Active');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('master_id');
+            $table->string('certificate_type')->nullable();
+            $table->enum('is_lifetime', ['yes', 'no'])->default('no');
+            $table->enum('is_mandatory', ['yes', 'no'])->default('no');
+            $table->enum('id_current_for_flying', ['yes', 'no'])->default('no');
             $table->timestamps();
+    
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('master_id')->references('id')->on('masters')->onDelete('cascade');
+        
         });
     }
 

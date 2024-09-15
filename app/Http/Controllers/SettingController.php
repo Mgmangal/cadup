@@ -11,15 +11,15 @@ class SettingController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Setting Edit']);
+        //$this->middleware(['permission:Setting Edit']);
     }
-    
+
     public function index(){
         $setting=Setting::first();
         return view('settings.index',compact('setting'));
     }
-    
-    
+
+
     public function passengerIndex()
     {
         return view('settings.passenger');
@@ -92,7 +92,7 @@ class SettingController extends Controller
             $action = '';
             $action = '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.passenger.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.passenger.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -119,7 +119,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function passengerDestroy($id)
     {
         $data = Master::find($id);
@@ -131,13 +131,13 @@ class SettingController extends Controller
             'message' => 'Passenger Deleted Successfully'
         ]);
     }
-    
+
     public function sfarate()
     {
-       
+
         return view('settings.sfa-rate');
     }
-    
+
     public function sfarateStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -179,7 +179,7 @@ class SettingController extends Controller
         }
         return redirect()->back()->with('success','Settings updated successfully');
     }
-    
+
     public function sfarateList(Request $request)
     {
         $column = ['id', 'apply_date', 'fixed_wing_rate','roator_wing_rate','end_date', 'id'];
@@ -207,7 +207,7 @@ class SettingController extends Controller
             $action = '';
             $action = '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.sfarate.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.sfarate.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = is_get_date_format($value->apply_date);
@@ -226,7 +226,7 @@ class SettingController extends Controller
 
         echo json_encode($output);
     }
-    
+
     public function sfarateEdit($id)
     {
         $role = SfaRate::find($id);
@@ -235,7 +235,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function sfarateDestroy($id)
     {
         $data = SfaRate::find($id);
@@ -277,7 +277,7 @@ class SettingController extends Controller
         $setting->save();
         return redirect()->back()->with('success','Settings updated successfully');
     }
-    
+
     public function flyingtypeIndex()
     {
         return view('settings.flying-type');
@@ -349,7 +349,7 @@ class SettingController extends Controller
             //$action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.designations.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.flyingtype.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -375,7 +375,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function flyingtypeDestroy($id)
     {
         $data = Master::find($id);
@@ -387,7 +387,7 @@ class SettingController extends Controller
             'message' => 'Flying Type Deleted Successfully'
         ]);
     }
-    
+
     public function pilotroleIndex()
     {
         return view('settings.pilot-role');
@@ -459,7 +459,7 @@ class SettingController extends Controller
             //$action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.designations.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.pilotrole.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -485,7 +485,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function pilotroleDestroy($id)
     {
         $data = Master::find($id);
@@ -497,7 +497,7 @@ class SettingController extends Controller
             'message' => 'Pilot Role Deleted Successfully'
         ]);
     }
-    
+
     public function sectors()
     {
         return view('settings.sectors');
@@ -569,7 +569,7 @@ class SettingController extends Controller
             //$action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.designations.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.sectors.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -595,7 +595,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function sectorsDestroy($id)
     {
         $data = Master::find($id);
@@ -607,7 +607,7 @@ class SettingController extends Controller
             'message' => 'Sector Deleted Successfully'
         ]);
     }
-    
+
     public function aircraftTypeIndex()
     {
         return view('settings.aircraft-type');
@@ -683,7 +683,7 @@ class SettingController extends Controller
             //$action .= '<a href="javascript:void(0);" onclick="license(`' . $value->id . '`);" class="btn btn-success btn-sm m-1">License</a>';
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.designations.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.aircraftType.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -710,7 +710,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function aircraftTypeDestroy($id)
     {
         $data = Master::find($id);
@@ -722,12 +722,12 @@ class SettingController extends Controller
             'message' => 'Aircraft Type Deleted Successfully'
         ]);
     }
-    
+
     public function expensesType()
     {
         return view('settings.expenses-type');
     }
-    
+
     public function expensesTypeStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -844,7 +844,7 @@ class SettingController extends Controller
     {
         return view('settings.leave-type');
     }
-    
+
     public function leaveTypeStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -959,13 +959,13 @@ class SettingController extends Controller
             'message' => 'Leave Type Deleted Successfully'
         ]);
     }
-    
-    
+
+
     public function postFlightDoc()
     {
         return view('settings.post-flight-doc');
     }
-    
+
     public function postFlightDocStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -1080,12 +1080,12 @@ class SettingController extends Controller
             'message' => 'Post Flight Doc Deleted Successfully'
         ]);
     }
-    
+
     public function expenditure()
     {
         return view('settings.expenditure');
     }
-    
+
     public function expenditureStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -1202,7 +1202,7 @@ class SettingController extends Controller
     }
 
     public function certificate()
-    {
+    { 
         return view('settings.certificate.index');
     }
 
@@ -1221,22 +1221,21 @@ class SettingController extends Controller
         $sub_type=$request->sub_type;
         $short_name=$request->short_name;
         $id=$request->edit_id;
-        $lifetime=$request->is_valid??null;
         try{
             if(!empty($id)){
                 $master=Master::find($id);
                 $master->name=$name;
                 $master->other_data=$short_name;
                 $master->sub_type=$sub_type;
-                $master->more_data=$lifetime;
                 $master->save();
             }else{
                 $master=new Master();
                 $master->name=$name;
                 $master->other_data=$short_name;
                 $master->sub_type=$sub_type;
-                $master->more_data=$lifetime;
                 $master->type='certificate';
+                $master->status='active';
+                $master->is_delete='0';
                 $master->save();
             }
             return response()->json([
@@ -1281,22 +1280,22 @@ class SettingController extends Controller
         $data = array();
 		foreach ($result as $key => $value) {
             $action = '';
-            if(auth()->user()->can('Certificate Edit')){
+            // if(auth()->user()->can('Certificate Edit')){
             $action .= '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.certificates.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-            }
-            if(auth()->user()->can('Certificate Delete')){
+            // }
+            // if(auth()->user()->can('Certificate Delete')){
             $action .= '<a href="javascript:void(0);" onclick="deleted(`'.route('app.settings.certificates.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            }
+            // }
             $sub_array = array();
 			$sub_array[] = ++$key;
             $sub_array[] = $value->other_data;
             $sub_array[] = $value->name;
             $sub_array[] = ucwords(str_replace('_', ' ', $value->sub_type));
-            $sub_array[] = $value->more_data;
+            //$sub_array[] = $value->more_data;
             $sub_array[] = date('d-m-Y',strtotime($value->created_at));
             $sub_array[] =  $action;
             $data[] = $sub_array;
-        } 
+        }
         $output = array(
 			"draw"       =>  intval($_POST["draw"]),
 			"recordsTotal"   =>  $total_row,
@@ -1395,7 +1394,7 @@ class SettingController extends Controller
             $action = '';
             $action = '<a href="javascript:void(0);" onclick="editRole(`' . route('app.settings.contract.type.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
             $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.contract.type.destroy', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            
+
             $sub_array = array();
             $sub_array[] = ++$key;
             $sub_array[] = $value->name;
@@ -1421,7 +1420,7 @@ class SettingController extends Controller
             'data' => $role
         ]);
     }
-    
+
     public function contractTypeDestroy($id)
     {
         $data = Master::find($id);
@@ -1433,4 +1432,115 @@ class SettingController extends Controller
             'message' => 'Contract Deleted Successfully'
         ]);
     }
+
+    public function resource_type()
+    {
+        return view('settings.resource-type');
+    }
+
+    public function resource_type_store(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+        if ($validation->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validation->errors()
+            ]);
+        }
+        $name = $request->name;
+        $id = $request->edit_id;
+        try {
+            if (!empty($id)) {
+                $master = Master::find($id);
+                $master->name = $name;
+                $master->save();
+                $message = 'Resource Type Updated Successfully';
+            } else {
+                $master = new Master();
+                $master->name = $name;
+                $master->type = 'resource_type';
+                $master->status = 'active';
+                $master->is_delete = '0';
+                $master->save();
+                $message = 'Resource Type Added Successfully';
+            }
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function resource_type_list(Request $request)
+    {
+        $column = ['id', 'name', 'created_at', 'id'];
+        $masters = Master::where('type', '=', 'resource_type')->where('is_delete','0');
+
+        $total_row = $masters->count();
+        if (isset($_POST['search'])) {
+            $masters->where('name', 'LIKE', '%' . $_POST['search']['value'] . '%');
+        }
+
+        if (isset($_POST['order'])) {
+            $masters->orderBy($column[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
+        } else {
+            $masters->orderBy('id', 'desc');
+        }
+        $filter_row = $masters->count();
+        if (isset($_POST["length"]) && $_POST["length"] != -1) {
+            $masters->skip($_POST["start"])->take($_POST["length"]);
+        }
+        $result = $masters->get();
+        $data = array();
+        foreach ($result as $key => $value) {
+
+            $action = '';
+            $action .= '<a href="javascript:void(0);" onclick="edit(`' . route('app.settings.resource_type_edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+            $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.settings.resource_type_delete', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+
+            $sub_array = array();
+            $sub_array[] = ++$key;
+            $sub_array[] = $value->name;
+            $sub_array[] = date('d-m-Y', strtotime($value->created_at));
+            $sub_array[] =  $action;
+            $data[] = $sub_array;
+        }
+        $output = array(
+            "draw"       =>  intval($_POST["draw"]),
+            "recordsTotal"   =>  $total_row,
+            "recordsFiltered"  =>  $filter_row,
+            "data"       =>  $data
+        );
+
+        echo json_encode($output);
+    }
+
+    public function resource_type_edit($id)
+    {
+        $role = Master::find($id);
+        return response()->json([
+            'success' => true,
+            'data' => $role
+        ]);
+    }
+
+    public function resource_type_delete($id)
+    {
+        $data = Master::find($id);
+        $data->is_delete='1';
+        $data->status='inactive';
+        $data->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Resource Type Deleted Successfully'
+        ]);
+    }
+
 }

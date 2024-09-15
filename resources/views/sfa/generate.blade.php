@@ -2,8 +2,8 @@
     <x-slot name="breadcrumb">
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{route('app.dashboard')}}">DASHBOARD</a></li>
-            <li class="breadcrumb-item active">SFA </li> 
-            <li class="breadcrumb-item active">Generate Report </li> 
+            <li class="breadcrumb-item active">SFA </li>
+            <li class="breadcrumb-item active">Generate Report </li>
         </ul>
     </x-slot>
     <x-slot name="css">
@@ -34,9 +34,9 @@
                     <select class="form-control filter" id="pilots" name="pilots" form="sfa-form" required readonly>
                         <option value="">Select</option>
                         @foreach($pilots as $pilot)
-                       
+
                         <option value="{{$pilot->id}}">{{$pilot->salutation.' '.$pilot->name}}</option>
-                       
+
                         @endforeach
                     </select>
                 </div>
@@ -127,7 +127,7 @@
         <div class="row">
             <div class="col-sm-10"></div>
             <div class="col-sm-2">
-                <form action="{{route('user.sfa.generate')}}" method="post" id="sfa-form" class="text-right">
+                <form action="{{route('app.sfa.generate')}}" method="post" id="sfa-form" class="text-right">
                     @csrf
                     <input type="hidden" name="total_price" id="total_price">
                     <input type="submit" name="submit_btn" id="submit_btn" value="Generate SFA Report" class="btn btn-primary d-none">
@@ -197,7 +197,7 @@
                 zIndexOffset: 9999,
                 orientation: "bottom"
             });
-            
+
             function dataList()
             {
                 $('#datatableDefault').DataTable().destroy();
@@ -207,8 +207,8 @@
                 $('#datatableDefault').DataTable({
                     processing: true,
                     serverSide: true,
-                    searching: false, 
-                    paging: false, 
+                    searching: false,
+                    paging: false,
                     info: false,
                     order: [[1, 'desc']],
                     orderable: false,
@@ -223,26 +223,27 @@
                         type: 'POST',
                         data:{"_token": "{{ csrf_token() }}",pilot,from_date,to_date},
                     },
-                    fnRowCallback: function( nRow, aData, iDisplayIndex ) { 
+                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {
                             var oSettings = this.fnSettings ();
                             $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
                         },
                     "initComplete": function(){
-                    
+
                     },
                      drawCallback: function(settings) {
                         $('#totalBlockTime').html(settings.json.total_time);
                         $("#total-price").html(settings.json.total_payable_amount);
-                        $("#certified_that").html(settings.json.certified_that);
+                        $("#total_price").html(settings.json.total_payable_amount);
+                        $("#certified_that").val(settings.json.certified_that);
                         $(".certified_that").val(settings.json.certified_that);
                         $("#certified_that_action").html('<a href="javascript:void(0);" class="btn btn-sm btn-primary" onclick="updateCertifiedThat();">Edit</a>');
                         if(settings.json.data.length > 0){
                             $('#submit_btn').removeClass('d-none');
                         }
                     },
-                }); 
+                });
             }
-        
+
             $('.filter').on('change',function(){
                 if($('#pilots').val().length>0&&$('#from_date').val().length>0&&$('#to_date').val().length>0)
                 {
@@ -250,12 +251,12 @@
                 }
             });
             function calPrice(e){
-	    
+
         	    var rate_per_hour = $(e).val();
         	    var rate_per_minut = rate_per_hour/60; //Math.floor(rate_per_hour/60);
         	    var time = $(e).parent('td').prev().prev().html();
         	    var total_amount = $(e).parent('td').parent('tr').parent('tbody').next().find("#total-price");
-        	    
+
                 var time_array = time.split(":");
                 var total_minut = parseInt(time_array[0]*60) + parseInt(time_array[1]);
                 var amount = rate_per_minut*total_minut;//Math.round(rate_per_minut*total_minut);
@@ -268,7 +269,7 @@
                 });
                 total_amount.html(total.toFixed(2));
             }
-            
+
             function updateCertifiedThat()
             {
                 $('#manageModal').modal('show');

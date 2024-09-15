@@ -46,18 +46,18 @@
                         </select>
                     </div>
                 </div>
-                <!--<div class="col-md-3">-->
-                <!--    <div class="form-group">-->
-                <!--        <label for="pilot" class="form-label">Pilots</label>-->
-                <!--        <select class="form-control filters" id="pilot">-->
-                <!--            <option value="">Select</option>-->
-                <!--            @foreach($pilots as $pilot)-->
-                <!--            <option value="{{$pilot->id}}">{{$pilot->salutation}} {{$pilot->name}}</option>-->
-                <!--            @endforeach-->
-                <!--        </select>-->
-                <!--    </div>-->
-                <!--</div>-->
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="pilot" class="form-label">Pilots</label>
+                        <select class="form-control filters" id="pilot">
+                            <option value="">Select</option>
+                            @foreach($pilots as $pilot)
+                            <option value="{{$pilot->id}}">{{$pilot->salutation}} {{$pilot->name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
                     <div class="form-group">
                         <label for="flying_type" class="form-label">Flying Type</label>
                         <select class="form-control filters" id="flying_type">
@@ -68,11 +68,11 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <div class="form-group">
                         <button class="btn btn-sm btn-info mt-4" onclick="printReport();">Print</button>
                     </div>
-                </div>    
+                </div>
             </div>
             <div class="table-responsive">
                 <table id="datatableDefault" class="table text-nowrap w-100">
@@ -102,7 +102,7 @@
                             <th id="total_time" style=" text-align: center;"></th>
                             <th></th>
                             <th></th>
-                            
+
                         </tr>
                     </tfoot>
                 </table>
@@ -132,7 +132,7 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 // maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
                 }
@@ -145,7 +145,7 @@
                     dom: "<'row mb-3'<'col-sm-4'l><'col-sm-8 text-end'<'d-flex justify-content-end'fB>>>t<'d-flex align-items-center'<'me-auto'i><'mb-0'p>>",
                     lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
                     responsive: true,
-                    
+
                     order: [[2, 'desc']],
                     // columnDefs: [{
                     //     width: 200,
@@ -175,30 +175,30 @@
                             "_token": "{{ csrf_token() }}",from_date:$('#from_date').val(),to_date:$('#to_date').val(),aircraft:$('#aircraft').val(),pilot:$('#pilot').val(),flying_type:$('#flying_type').val()
                         },
                     },
-                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {  
+                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {
                         var oSettings = this.fnSettings ();
                         $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
                         $('td:eq(5)', nRow).css('text-align','center');
                         $('td:eq(8)', nRow).css('display','none');
                     },
                     "initComplete": function() {
-                            
+
                     },
                     "fnDrawCallback":function(nRow)
-                    {   
+                    {
                         $('#total_time').html(nRow.json.totalTime);
-                         
+
                     }
                 });
             }
             dataList();
-            
+
             $('.filters').on('change',function(){
                 dataList();
             });
-            
+
             function printReport()
-            {   
+            {
                 let from_date = $('#from_date').val();
                 let to_date = $('#to_date').val();
                 let aircraft = $('#aircraft').val();

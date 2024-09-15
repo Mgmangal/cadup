@@ -3,13 +3,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Master;
-use App\Models\User;
 use App\Models\PilotLicense;
 use App\Models\PilotMedical;
 use App\Models\PilotTraining;
 use App\Models\PilotQualification;
 use App\Models\PilotGroundTraining; 
-use Illuminate\Support\Facades\Validator;
 class CertificateController extends Controller
 {
     public function __construct()

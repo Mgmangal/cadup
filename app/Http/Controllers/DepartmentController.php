@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Master;
-use Illuminate\Support\Facades\Validator;
+
 class DepartmentController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Department Add|Department Edit|Department Delete|Department View']);
+        //$this->middleware(['permission:Department Add|Department Edit|Department Delete|Department View']);
     }
 
     public function index()
@@ -36,6 +36,8 @@ class DepartmentController extends Controller
                 $master=new Master();
                 $master->name=$name;
                 $master->type='department';
+                $master->status='active';
+                $master->is_delete='0';
                 $master->save();
             }
             return response()->json([
@@ -74,13 +76,13 @@ class DepartmentController extends Controller
 		foreach ($result as $key => $value) {
             
             $action = '';
-            if (auth()->user()->can('Department Edit')) {
-                $action .= '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.departments.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-            }
+           
+            $action .= '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.departments.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+           
             // $action = '<a href="javascript:void(0);" onclick="editRole(`'.route('app.settings.departments.edit', $value->id).'`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-           if(auth()->user()->can('Department Delete')){
-                $action .= '<a href="javascript:void(0);" onclick="deleted(`'.route('app.settings.departments.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
-            }
+           
+            $action .= '<a href="javascript:void(0);" onclick="deleted(`'.route('app.settings.departments.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+            
             // $action .= '<a href="javascript:void(0);" onclick="deleted(`'.route('app.settings.departments.destroy', $value->id).'`);" class="btn btn-danger btn-sm m-1">Delete</a>';
             $sub_array = array();
 			$sub_array[] = ++$key;

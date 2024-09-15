@@ -71,7 +71,7 @@
                     <div class="form-group">
                         <button class="btn btn-sm btn-info mt-4" onclick="printReport();">Print</button>
                     </div>
-                </div>    
+                </div>
             </div>
             <div class="table-responsive">
                 <table id="datatableDefault" class="table text-nowrap w-100">
@@ -118,7 +118,7 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 // maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
                 }
@@ -131,7 +131,7 @@
                     dom: "<'row mb-3'<'col-sm-4'l><'col-sm-8 text-end'<'d-flex justify-content-end'fB>>>t<'d-flex align-items-center'<'me-auto'i><'mb-0'p>>",
                     lengthMenu: [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
                     responsive: true,
-                    
+
                     order: [[2, 'desc']],
                     // columnDefs: [{
                     //     width: 200,
@@ -158,28 +158,28 @@
                         url: "{{route('app.external.flying-details.list')}}",
                         type: 'POST',
                         data: {
-                            "_token": "{{ csrf_token() }}",from_date:$('#from_date').val(),to_date:$('#to_date').val(),aircraft:$('#aircraft').val(),pilot:$('#pilot').val(),flying_type:$('#flying_type').val()
+                            "_token": "{{ csrf_token() }}",from_date:$('#from_date').val(),to_date:$('#to_date').val(),aircraft:$('#aircraft_cateogry').val(),pilot:$('#pilot').val(),flying_type:$('#flying_type').val()
                         },
                     },
-                    fnRowCallback: function( nRow, aData, iDisplayIndex ) { 
+                    fnRowCallback: function( nRow, aData, iDisplayIndex ) {
                         var oSettings = this.fnSettings ();
                         $("td:eq(0)", nRow).html(oSettings._iDisplayStart+iDisplayIndex +1);
                         $('td:eq(5)', nRow).css('text-align','center');
                         $('td:eq(8)', nRow).css('display','none');
                     },
                     "initComplete": function() {
-                            
+
                     }
                 });
             }
             dataList();
-            
+
             $('.filters').on('change',function(){
                 dataList();
             });
-            
+
             function printReport()
-            {   
+            {
                 let from_date = $('#from_date').val();
                 let to_date = $('#to_date').val();
                 let aircraft = $('#aircraft_cateogry').val();

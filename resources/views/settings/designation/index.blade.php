@@ -19,9 +19,9 @@
         <div class="card-header d-flex justify-content-between">
             <h3 class="card-title">Designation List </h3>
             <div>
-                @can('Designation Add')
+                
                 <a href="javascript:void(0);" class="btn btn-primary btn-sm p-2" onclick="addNew();">Add New</a>
-                @endcan
+                 
             </div>
         </div>
         <div class="card-body">

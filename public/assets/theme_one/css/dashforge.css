@@ -7479,7 +7479,7 @@ textarea.form-control-lg {
 
 .text-danger {
   --bs-text-opacity: 1;
-  color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important; }
+  color: red !important; }
 
 .text-light {
   --bs-text-opacity: 1;

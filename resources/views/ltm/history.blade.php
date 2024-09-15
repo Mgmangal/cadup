@@ -2,7 +2,7 @@
     <x-slot name="breadcrumb">
         <ul class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('app.dashboard') }}">DASHBOARD</a></li>
-            <li class="breadcrumb-item active">LICENSE TRAINING & MEDICAL MONITORING</li>
+            <li class="breadcrumb-item active">LICENSE TRAINING & MEDICAL HISTORY</li>
         </ul>
     </x-slot>
     <x-slot name="css">
@@ -20,7 +20,7 @@
     <x-success class="mb-4" />
     <div class="card">
         <div class="card-header d-flex justify-content-between">
-            <h3 class="card-title">License Training & Medical Monitoring List</h3>
+            <h3 class="card-title">License Training & Medical History List</h3>
             <!--@if (auth()->user()->can('Staff Add'))
 -->
             <!--<a href="{{ route('app.pilot.create') }}" class="btn btn-primary btn-sm p-2">Add Pilot</a>-->

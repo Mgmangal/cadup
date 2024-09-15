@@ -43,9 +43,9 @@
                     <div class="form-group">
                         <button class="btn btn-sm btn-info mt-4 py-2 px-4" onclick="printReport();">Print</button>
                     </div>
-                </div>    
+                </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -71,14 +71,14 @@
                 formatDate:'Y/m/d',
                 autoclose: true,
                 clearBtn: true,
-                todayButton: true,               
+                todayButton: true,
                 // maxDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
                 onSelectDate: function(ct) {
                 }
             });
-            
+
             function printReport()
-            {   
+            {
                 let date = $('#date').val();
                 let aircraft = $('#aircraft_cateogry').val();
                 window.open("{{route('app.reports.pilotGroundTrainingPrint')}}"+'/'+date+'/'+aircraft,'printDiv','height=900,width=900');

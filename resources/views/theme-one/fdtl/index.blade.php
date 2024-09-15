@@ -131,7 +131,7 @@
                     alert('Please select to date');
                     return false;
                 }
-                window.open("{{url('users/fdtl/report/print')}}"+'/'+user_id+'/'+from_date+'/'+to_date,'printDiv','height=900,width=900');
+                window.open("{{url('user/fdtl/report/print')}}"+'/'+user_id+'/'+from_date+'/'+to_date,'printDiv','height=900,width=900');
             }
         </script>
 @endsection

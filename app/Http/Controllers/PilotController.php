@@ -11,6 +11,7 @@ use App\Models\MasterAssign;
 use App\Models\PilotLicense;
 use App\Models\PilotMedical;
 use App\Models\UserDocument;
+use App\Models\UserCertificate;
 use Illuminate\Http\Request;
 use App\Models\PilotTraining;
 use Spatie\Permission\Models\Role;
@@ -341,22 +342,27 @@ class PilotController extends Controller
     public function licenses($id)
     {
         $user = User::find($id);
-        $designation[]=$user->designation??'0';
-        $section=$user->section??[];
-        $jobfunction=$user->jobfunction??[];
-        $a=AirCraft::whereJsonContains('pilots',$id)->pluck('id')->toArray();
-        $d=array_merge($designation,$section,$jobfunction);
-        $license1=MasterAssign::whereIn('master_id',$d)->where('is_for','user')->pluck('certificate_id')->toArray();
-        $license2=MasterAssign::whereIn('master_id',$a)->where('is_for','aircraft')->pluck('certificate_id')->toArray();
-        $license=array_merge($license1,$license2);
-        $licenses=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','license')->where('is_delete','0')->get();
-        $trainings=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','training')->where('is_delete','0')->get();
-        $medicals=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','medical')->where('is_delete','0')->get();
-        $qualifications=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','qualification')->where('is_delete','0')->get();
-        $groundtrainings=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','ground_training')->where('is_delete','0')->get();
+        
+        $certificates=UserCertificate::with('licenses')->where('user_id',$id)->groupBy('certificate_type')->get();
+        //dd($certificates);
+        //print_r($certificates);die;
+        // $designation[]=$user->designation??'0';
+        // $section=$user->section??[];
+        // $jobfunction=$user->jobfunction??[];
+        // $a=AirCraft::whereJsonContains('pilots',$id)->pluck('id')->toArray();
+        // $d=array_merge($designation,$section,$jobfunction);
+        // $license1=MasterAssign::whereIn('master_id',$d)->where('is_for','user')->pluck('certificate_id')->toArray();
+        // $license2=MasterAssign::whereIn('master_id',$a)->where('is_for','aircraft')->pluck('certificate_id')->toArray();
+        // $license=array_merge($license1,$license2);
+        // $licenses=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','license')->where('is_delete','0')->get();
+        // $trainings=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','training')->where('is_delete','0')->get();
+        // $medicals=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','medical')->where('is_delete','0')->get();
+        // $qualifications=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','qualification')->where('is_delete','0')->get();
+        // $groundtrainings=Master::whereIn('id',$license)->where('type','certificate')->where('sub_type','ground_training')->where('is_delete','0')->get();
+        //dd($certificates);
         $ac_types=Master::where('type','aircraft_type')->where('is_delete','0')->get();
-
-        return view('pilot.licenses',compact('user','licenses','trainings','medicals','qualifications','groundtrainings','ac_types'));
+        
+        return view('pilot.licenses',compact('user','ac_types','certificates'));
     }
 
     public function licensesStore(Request $request)
@@ -379,7 +385,7 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($license_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($license_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($license_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -425,7 +431,7 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($license_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($license_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($license_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -474,7 +480,7 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($training_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -543,8 +549,8 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
+
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($training_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -595,8 +601,8 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($medical_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($medical_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
+
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($medical_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -648,8 +654,8 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($medical_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($medical_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
+
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($medical_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -691,8 +697,7 @@ class PilotController extends Controller
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($qualification_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($qualification_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($qualification_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -708,6 +713,7 @@ class PilotController extends Controller
         $data->status=$status;
         $data->remarks=$remarks;
         $data->save();
+       // die;
         return redirect()->route('app.pilot.licenses',$user_id)->with('success','Qualification added successfully');
     }
 
@@ -734,12 +740,13 @@ class PilotController extends Controller
         $data= PilotQualification::find($edit_id);
         $data->user_id=$user_id;
         $data->qualification_id=$qualification_id;
+        // print_r($next_due);die();
 
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($qualification_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($qualification_id).'-'.date('d-m-Y',strtotime($next_due))).'.'.$ext;
+
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($qualification_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -784,12 +791,12 @@ class PilotController extends Controller
         $data=new PilotGroundTraining;
         $data->user_id=$user_id;
         $data->training_id=$training_id;
+        // print_r($next_due);die();
 
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name = changeSpaceInUnderscore(getEmpName($user_id) . '-' . getMasterName($training_id) . '-' . date('d-m-Y',strtotime($next_due))).'.'.$ext;
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($training_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -855,11 +862,13 @@ class PilotController extends Controller
         $data=PilotGroundTraining::find($edit_id);
         $data->user_id=$user_id;
         $data->training_id=$training_id;
+        // print_r($next_due);die();
+        
         if($request->hasFile('documnets')) {
             $file = $request->file('documnets');
             $ext= $file->getClientOriginalExtension();
-            $file_name=changeSpaceInUnderscore(getEmpName($user_id).'-'.getMasterName($training_id).'-'.date('d-m-Y-h-i')).'.'.$ext;
-            
+            $file_name = changeSpaceInUnderscore(getEmpName($user_id) . '-' . getMasterName($training_id) . '-' . date('d-m-Y',strtotime($next_due))).'.'.$ext;
+
             // $file_name=changeSpaceInUnderscore(getEmpName($user_id)).'-'.changeSpaceInUnderscore(getMasterName($training_id)).'-'.date('d-m-Y-h-i').'.'.$ext;
             $file->move(public_path('uploads/pilot_certificate'), $file_name);
             $data->documents = $file_name;
@@ -1024,6 +1033,7 @@ class PilotController extends Controller
         return view('pilot.leave-create',compact('users','leave_types'));
     }
 
+    
     public function leaveStore(Request $request)
     {
         $user_id=$request->user_id;
@@ -1031,6 +1041,7 @@ class PilotController extends Controller
         $leave_dates=$request->leave_dates;
         $status=$request->status;
         $remarks=$request->remark; 
+        $no_of_days=$request->no_of_days; 
         $date=explode('-',$leave_dates);
         $data=new Leave();
         if($request->hasFile('documnets')) {
@@ -1048,6 +1059,7 @@ class PilotController extends Controller
         $data->master_id=$master_id;
         $data->leave_dates=$leave_dates;
         $data->remark=$remarks;
+        $data->no_of_days=$no_of_days;
         $data->from_date=date('Y-m-d',strtotime($date[0]));
         $data->to_date=date('Y-m-d',strtotime($date[1]));
         $data->status=$status;
@@ -1069,6 +1081,7 @@ class PilotController extends Controller
         $master_id=$request->master_id;
         $leave_dates=$request->leave_dates;
         $remarks=$request->remark;
+        $no_of_days=$request->no_of_days;
         $date=explode('-',$leave_dates);
         $status=$request->status;
         $data=Leave::find($id);
@@ -1088,6 +1101,7 @@ class PilotController extends Controller
         $data->master_id=$master_id;
         $data->leave_dates=$leave_dates;
         $data->remark=$remarks;
+        $data->no_of_days=$no_of_days;
         $data->from_date=date('Y-m-d',strtotime($date[0]));
         $data->to_date=date('Y-m-d',strtotime($date[1]));
         $data->status=$status;
@@ -1108,31 +1122,61 @@ class PilotController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+    
     public function checkValidLeave(Request $request)
     {
         $leave_dates=$request->leave_dates;
         $user_id=$request->user_id;
+        $no_of_days=$request->no_of_days;
         if(empty($leave_dates)){
             return response()->json(['status' => false, 'message' => 'Please select leave dates']);
         }
-        if(empty($user_id)){
-            return response()->json(['status' => false, 'message' => 'Please select user']);
-        }
+        // if(empty($user_id)){
+        //     return response()->json(['status' => false, 'message' => 'Please select user']);
+        // }
         $date=explode('-',$leave_dates);
         $date_from=date('Y-m-d',strtotime($date[0]));
         $date_to=date('Y-m-d',strtotime($date[1]));
-        $data=Leave::where(function($q) use($date_from,$date_to){
-            $q->whereBetween('from_date',[$date_from,$date_to]);
-        })->orWhere(function($q) use($date_from,$date_to){
-            $q->whereBetween('to_date',[$date_from,$date_to]);
-        })->get();
-        $html='<table class="table table-striped" ><thead><tr><th>SN</th><th>User</th><th>From Date</th><th>To Date</th><td>Status</td></tr></thead><tbody >';
-        foreach ($data as $key => $value) {
-            $html.='<tr><td>'.++$key.'</td><td>'.getEmpFullName($value->user_id).' has applied leave from </td><td>'.date('d-m-Y',strtotime($value->from_date)).' </td><td>'.date('d-m-Y',strtotime($value->to_date)).'</td><td>'.ucfirst($value->status).'</td></tr>';
+        
+        $fromDate = \Carbon\Carbon::parse($date_from)->startOfDay();
+        $toDate = \Carbon\Carbon::parse($date_to)->endOfDay();
+
+        // $data = Leave::whereBetween('from_date', [$fromDate, $toDate])
+        //               ->orWhereBetween('to_date', [$fromDate, $toDate])
+        //               ->orWhere(function($q) use($fromDate,$toDate){
+        //                     $q->where('from_date','>=',$fromDate);
+        //                     $q->where('to_date','<=',$toDate);
+        //                 })
+        //               ->get();
+        $data=Leave::where('id','>',0);   
+        if(!empty($user_id))
+        {
+            $data->where('user_id',$user_id);
+        }
+        $data->where(function($m) use($date_from,$date_to){
+                $m->where(function($q) use($date_from,$date_to){
+                    $q->whereBetween('from_date',[$date_from,$date_to]);
+                })->orWhere(function($q) use($date_from,$date_to){
+                    $q->whereBetween('to_date',[$date_from,$date_to]);
+                });
+        });
+        
+        $data_=$data->get();
+        
+        $html='<table class="table table-striped" ><thead><tr><th>SN</th><th>User</th><th>From Date</th><th>To Date</th><th>Remark</th><th>Status</th></tr></thead><tbody >';
+        foreach ($data_ as $key => $value) {
+            $aircraft_cateogry='';
+            $aircrafts = AirCraft::whereJsonContains("pilots", "$value->user_id")->get();
+            foreach($aircrafts as $aircraft)
+            {
+                 $aircraft_cateogry=$aircraft->aircraft_cateogry;
+            }
+            $html.='<tr><td>'.++$key.'</td><td>'.getEmpFullName($value->user_id).' ('.$aircraft_cateogry.') </td><td>'.date('d-m-Y',strtotime($value->from_date)).' </td><td>'.date('d-m-Y',strtotime($value->to_date)).'</td><td>'.$value->remark.'</td><td>'.ucfirst($value->status).'</td></tr>';
         }
         $html.='</tbody></table>';
+        
         $data=Leave::where('user_id',$user_id)->get();
-        $total_leave='36';
+        $total_leave='34';
         $apply_leave=0;
         $consumed_leave=0;
         $remaining_leave=0;
@@ -1142,13 +1186,17 @@ class PilotController extends Controller
             $from_date=date('Y-m-d',strtotime($from_date));
             $to_date=date('Y-m-d',strtotime($to_date));
             $diff = date_diff(date_create($from_date), date_create($to_date));
-            $apply_leave+=$diff->format('%a');
+            $apply_leave+=$value->no_of_days;//$diff->format('%a');
             if($value->status=='approved'){
-                $consumed_leave+=$diff->format('%a');
+                $consumed_leave+=$value->no_of_days;//$diff->format('%a');
             }
         }
+        
         $remaining_leave=$total_leave-$apply_leave;
-
+        if(!empty($no_of_days))
+        {
+           $remaining_leave= $remaining_leave-$no_of_days;
+        }
 
         return response()->json(['status' => true, 'message' => $html,'total_leave'=>$total_leave,'apply_leave'=>$apply_leave,'consumed_leave'=>$consumed_leave,'remaining_leave'=>$remaining_leave]);
        
@@ -1177,6 +1225,7 @@ class PilotController extends Controller
                 $html.='<th>Status</th>';
                 $html.='<td>'. ucfirst($data->status).'</td>';
             $html.='</tr>';
+            
             $html.='<tr>';
                 $html.='<th>Apply Date</th>';
                 $html.='<td>'. date('d-m-Y',strtotime($data->created_at)).'</td>';
@@ -1249,9 +1298,14 @@ class PilotController extends Controller
             }
 
             $sub_array[] = $availability;
-            $sub_array[] = checkCrewTrainings($value->id, getCetificateIds($value->id, 'training'), $from_date);
-            $sub_array[] = checkCrewLicenses($value->id, getCetificateIds($value->id, 'license'), $from_date);
-            $sub_array[] = checkCrewMedicals($value->id, getCetificateIds($value->id, 'medical'), $from_date);
+           
+            $sub_array[] = checkUserLapsedCertificate($value->id,'training');//checkCrewTrainings($value->id,getCetificateIds($value->id,'training'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'license');//checkCrewLicenses($value->id,getCetificateIds($value->id,'license'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'medical');//checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'));
+            
+            // $sub_array[] = checkCrewTrainings($value->id, getCetificateIds($value->id, 'training'), $from_date);
+            // $sub_array[] = checkCrewLicenses($value->id, getCetificateIds($value->id, 'license'), $from_date);
+            // $sub_array[] = checkCrewMedicals($value->id, getCetificateIds($value->id, 'medical'), $from_date);
             $sub_array[] = checkCrewLeaveStatus($value->id, $from_date);
             $sub_array[] = $status;
             $data[] = $sub_array;
@@ -1308,9 +1362,13 @@ class PilotController extends Controller
             $sub_array[] = $value->salutation.' '.$value->name;
             $sub_array[] = '';
             $sub_array[] = '';
-            $sub_array[] = checkCrewTrainings($value->id,getCetificateIds($value->id,'training'),$from_date);
-            $sub_array[] = checkCrewLicenses($value->id,getCetificateIds($value->id,'license'),$from_date);
-            $sub_array[] = checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'),$from_date);
+            $sub_array[] = checkUserLapsedCertificate($value->id,'training');//checkCrewTrainings($value->id,getCetificateIds($value->id,'training'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'license');//checkCrewLicenses($value->id,getCetificateIds($value->id,'license'));
+            $sub_array[] = checkUserLapsedCertificate($value->id,'medical');//checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'));
+            
+            // $sub_array[] = checkCrewTrainings($value->id,getCetificateIds($value->id,'training'),$from_date);
+            // $sub_array[] = checkCrewLicenses($value->id,getCetificateIds($value->id,'license'),$from_date);
+            // $sub_array[] = checkCrewMedicals($value->id,getCetificateIds($value->id,'medical'),$from_date);
             $sub_array[] = '';
             $sub_array[] = $status;
             $data[] = $sub_array;
@@ -1349,7 +1407,7 @@ class PilotController extends Controller
        if($docType=='qualification')
         {
             $data= PilotQualification::find($id);
-            
+
         }
        $result['status']=true;
        if(!empty($data)&&!empty($data->documents))
@@ -1359,7 +1417,7 @@ class PilotController extends Controller
            $data->save();
            $result['status']=true;
        }
-       
+
        return response()->json($result);
     }
 
@@ -1384,7 +1442,7 @@ class PilotController extends Controller
                 $data= PilotLicense::where('user_id',$user_id)->where('license_id',$id);
                 $data->update(['is_applicable'=>$status]);
             }
-            
+
         }
         if($docType=='training')
         {
@@ -1400,7 +1458,7 @@ class PilotController extends Controller
                 $data= PilotTraining::where('user_id',$user_id)->where('training_id',$id);
                 $data->update(['is_applicable'=>$status]);
             }
-            
+
         }
         if($docType=='medical')
         {
@@ -1416,7 +1474,7 @@ class PilotController extends Controller
                 $data= PilotMedical::where('user_id',$user_id)->where('medical_id',$id);
                 $data->update(['is_applicable'=>$status]);
             }
-            
+
         }
         if($docType=='ground_training')
         {
@@ -1432,7 +1490,7 @@ class PilotController extends Controller
                 $data= PilotGroundTraining::where('user_id',$user_id)->where('training_id',$id);
                 $data->update(['is_applicable'=>$status]);
             }
-            
+
         }
         if($docType=='qualification')
         {
@@ -1527,7 +1585,7 @@ class PilotController extends Controller
 
 		echo json_encode($output);
     }
-    
+
     public function documentsStore(Request $request)
     {
         $validation = Validator::make($request->all(), [
@@ -1590,4 +1648,149 @@ class PilotController extends Controller
             'message' => 'Document Deleted Successfully'
         ]);
     }
+    
+    public function viewCertificateLogs($type, $user_id, $id)
+    {
+        if($type=='licence-logs'){
+            $sub_title = "Licence Logs";
+        } else if($type=='training-logs'){
+            $sub_title = "Training Logs";
+        } else if($type=='medical-logs'){
+            $sub_title = "Medical Logs";
+        } else if($type=='qualification-logs'){
+            $sub_title = "Qualification Logs";
+        } else if($type=='ground-training-logs'){
+            $sub_title = "Ground Training Logs";
+        }
+        return view('pilot.view-certificate-logs',compact('sub_title','type','user_id','id'));
+    }
+    
+    public function getCertificateLogList(Request $request)
+    {
+        $column = [
+            'id', 'id', 'users.salutation', 'users.name', 'license.name',
+            'renewed_on', 'extended_date', 'next_due', 'status', 'created_at', 'id', 'id'
+        ];
+
+        $type = $request->input('type');
+        $user_id = $request->input('user_id');
+        $id = $request->input('id');
+        $model = null;
+        $table = null;
+        $where['user_id'] = $user_id;
+        switch ($type) {
+            case 'licence-logs':
+                $model = PilotLicense::class;
+                $where['license_id'] = $id;
+                $table = "license";
+                break;
+            case 'training-logs':
+                $model = PilotTraining::class;
+                $where['training_id'] = $id;
+                $table = "training";
+                break;
+            case 'medical-logs':
+                $model = PilotMedical::class;
+                $where['medical_id'] = $id;
+                $table = "medical";
+                break;
+            case 'qualification-logs':
+                $model = PilotQualification::class;
+                $where['qualification_id'] = $id;
+                $table = "qualification";
+                break;
+            case 'ground-training-logs':
+                $model = PilotGroundTraining::class;
+                $where['training_id'] = $id;
+                $table = "training";
+                break;
+            default:
+                return response()->json(['error' => 'Invalid log type'], 400);
+        }
+
+        if (!$model) {
+            return response()->json(['error' => 'Invalid log type'], 400);
+        }
+
+        $users = $model::with(['user'])->where($where);
+
+        if ($request->has('search.value') && $search = $request->input('search.value')) {
+            $users->where(function ($q) use ($search, $table) {
+                $q->whereHas('user', function ($q) use ($search) {
+                    $q->where(DB::raw("CONCAT(salutation, ' ', name)"), 'LIKE', '%' . $search . '%')
+                      ->orWhere('name', 'LIKE', '%' . $search . '%');
+                });
+                $q->orWhereHas($table, function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%');
+                });
+                $q->orWhere('renewed_on', 'LIKE', '%' . $search . '%')
+                  ->orWhere('extended_date', 'LIKE', '%' . $search . '%')
+                  ->orWhere('next_due', 'LIKE', '%' . $search . '%')
+                  ->orWhere('status', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        if ($request->has('order')) {
+            $users->orderBy($column[$request->input('order.0.column')], $request->input('order.0.dir'));
+        } else {
+            $users->orderBy('id', 'desc');
+        }
+
+        $total_row = $users->count();
+
+        if ($request->has('length') && $request->input('length') != -1) {
+            $users->skip($request->input('start'))->take($request->input('length'));
+        }
+
+        $result = $users->get();
+
+        $data = array();
+        foreach ($result as $key => $value) {
+            if($value->documents){
+                $action  = '<a href="' . asset('uploads/pilot_certificate/' . $value->documents) . '" target="_blank" class="btn btn-info btn-sm py-1 text-white">View</a>';
+            } else {
+                $action  = '<a href="javascript:void(0)" class="text-red" style="text-decoration: none !important;">Not Available</a>';
+            }
+
+            $status = 'Active';
+            $sub_array = array();
+            $sub_array[] = ++$key;
+            $sub_array[] = ($value->user->salutation ?? '') . ' ' . ($value->user->name ?? '');
+            $sub_array[] = $value->$table->name ?? '';
+            $sub_array[] = '<b>' . $value->renewed_on . '</b>';
+            $sub_array[] = $value->extended_date;
+            $sub_array[] = $value->next_due;
+
+            $next_due = '';
+            $dates = now();  // Assuming $dates is current date. Adjust if needed.
+            if (strtotime($value->next_due) > strtotime($dates)) {
+                $day = \Carbon\Carbon::parse($dates)->diffInDays($value->next_due);
+                $bt = 'style="background-color: #1e24dd;color: white;"';
+                if ($day <= 60) {
+                    $bt = 'style="background-color: yellow;color: #161515;"';
+                }
+                if ($day <= 30) {
+                    $bt = 'style="background-color: orange;color: #161515;"';
+                }
+                $next_due = '<button ' . $bt . ' type="button" class="btn btn-sm position-relative">' . $day . '<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">Valid<span class="visually-hidden">unread messages</span></span></button>';
+            } else {
+                $next_due = '<span class="btn btn-sm btn-danger">Lapsed</span>';
+            }
+
+            $sub_array[] = $next_due;
+            $sub_array[] = $status;
+            $sub_array[] = $action;
+            $data[] = $sub_array;
+        }
+
+        $output = array(
+            "draw" => intval($request->input("draw")),
+            "recordsTotal" => $total_row,
+            "recordsFiltered" => $users->count(),
+            "data" => $data
+        );
+
+        return response()->json($output);
+    }
+    
 }

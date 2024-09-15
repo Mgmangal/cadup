@@ -20,11 +20,7 @@ class ContractController extends Controller
     {
         $contract_types = Master::where('type', 'contract_type')->get();
         $users=User::where('designation',1)->where('is_delete','0')->get();
-        if(getUserType()=='user'){
-            return view('theme-one.contract.index', compact('contract_types','users'));
-        }else{
-            return view('contract.index', compact('contract_types','users'));
-        }
+        return view('theme-one.contract.index', compact('contract_types','users'));
 
     }
 
@@ -106,8 +102,8 @@ class ContractController extends Controller
             if(getUserType()=='user'){
 
             }else{
-            $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('app.contract.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
-            $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('app.contract.delete', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
+                $action .= '<a href="javascript:void(0);" onclick="editRole(`' . route('user.contract.edit', $value->id) . '`);" class="btn btn-warning btn-sm m-1">Edit</a>';
+                $action .= '<a href="javascript:void(0);" onclick="deleted(`' . route('user.contract.delete', $value->id) . '`);" class="btn btn-danger btn-sm m-1">Delete</a>';
             }
             $sub_array = array();
             $sub_array[] = ++$key;
